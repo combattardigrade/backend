@@ -1,0 +1,40 @@
+{
+  "name": "blits",
+  "version": "1.0.0",
+  "description": "blits backend server",
+  "main": "app.js",
+  "scripts": {
+    "test": "nodemon app.js"
+  },
+  "author": "blits scooters",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "csurf": "^1.9.0",
+    "debug": "^4.1.1",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "express-fileupload": "^1.1.1-alpha.3",
+    "express-jwt": "^5.3.1",
+    "http": "0.0.0",
+    "https": "^1.0.0",
+    "jade": "^1.11.0",
+    "jsonwebtoken": "^8.4.0",
+    "moment": "^2.24.0",
+    "mysql2": "^1.6.5",
+    "nexmo": "^2.4.1",
+    "nodemailer": "^5.1.1",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "pug": "^2.0.3",
+    "request": "^2.88.0",
+    "sequelize": "^4.42.0",
+    "serve-favicon": "^2.5.0",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  }
+}
