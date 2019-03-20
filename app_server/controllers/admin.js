@@ -27,9 +27,51 @@ module.exports.login = function(req,res) {
     const password = req.body.password
 
     const options = {
-        url: API_HOST + '/login',
+        url: API_HOST + '/auth/email/login',
         method: 'POST',
         json: { email: email, password: password }
     }
 
+    request(options, function(err, response, body) {
+        const token = body.token
+        if(token) {
+            request({
+                url: API_HOST + '/admin/checkPrivileges/' + email,
+                method: 'GET'
+            }, function(errAdmin, responseAdmin, bodyAdmin) {
+                var bodyAdmin = JSON.parse(bodyAdmin)
+                if('admin' in bodyAdmin) {
+                    if(bodyAdmin.admin.level > 0) {
+                        // to do: set cookie exp time and secure for production
+                        if(process.env.NODE_ENV == 'production') {
+                            // set cookie
+                            res.cookie('adminToken',token,{httpOnly: true, secure: true})
+                        } else {
+                            // set cookie
+                            res.cookie('adminToken',token,{httpOnly:true})
+                        }
+                        // redirect to dashboard
+                        res.writeHead(302,{
+                            'Location': 'dashboard'
+                        })
+                        res.end()
+                    }
+                } else {
+                    res.render('admin/login', {
+                        title: 'Iniciar sesion',
+                        csrf:req.csrfToken(),
+                        'serverMsg': bodyAdmin.message,
+                        captcha: true
+                    })
+                }
+            })
+        } else {
+            res.render('admin/login', {
+                title: 'Iniciar sesion',
+                csrf:req.csrfToken(),
+                'serverMsg': body.message,
+                captcha: true
+            })
+        }
+    })
 }

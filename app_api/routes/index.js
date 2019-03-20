@@ -19,8 +19,8 @@ router.post('/auth/phone/confirmCode',authenticationController.confirmCode)
 router.post('/auth/email/signup',authenticationController.emailSignup)
 router.post('/auth/email/login',authenticationController.emailLogin)
 
-
 // admin
-router.post('/admin/createAdmin',auth,adminController.createAdmin);
+router.post('/admin/givePrivileges',auth,adminController.givePrivileges)
+router.get('/admin/checkPrivileges/:email',adminController.checkPrivileges)
 
 module.exports = router

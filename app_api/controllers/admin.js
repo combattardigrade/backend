@@ -3,11 +3,11 @@ const Admin = require('../models/sequelize').Admin
 const sendJSONresponse = require('../../utils/index.js')
 const { Op } = require('sequelize');
 
-module.exports.createAdmin = function(req,res) {
+module.exports.givePrivileges = function(req,res) {
     const userId = req.user.id
-    const newAdminUserId = req.body.newAdminUserId
+    const email = req.body.email
     
-    if(!userId || !newAdminUserId) {
+    if(!userId || !email) {
         sendJSONresponse(res,422,{message:'All fields required'})
         return
     }
@@ -28,7 +28,7 @@ module.exports.createAdmin = function(req,res) {
 
         User.findOne({
             where: {
-                id: newAdminUserId
+                email: email
             },
             include: [
                 { model: Admin }
@@ -64,5 +64,48 @@ module.exports.createAdmin = function(req,res) {
             }
         })
     })
+}
 
+module.exports.checkPrivileges = function(req,res) {
+    const email = req.params.email
+
+    if(!email) {
+        sendJSONresponse(res,422,{message: 'All fields required'})
+        return
+    }
+
+    User.findOne({
+        where: {
+            email: email
+        }
+    })
+    .then((user) => {
+        if(!user) {
+            sendJSONresponse(res,404,{message:'User does not exist'})
+            return
+        }
+        Admin.findOne({
+            where: {
+                userId: user.id
+            }
+        })
+        .then((admin) => {
+            if(!admin || admin.level == 0) {
+                sendJSONresponse(res,404,{message:'User does not have enough privileges'})
+                return
+            }
+            sendJSONresponse(res,200,{admin})
+            return
+        })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res,404,{message:err})
+            return
+        })
+    })
+    .catch((err) => {
+        console.log(err)
+        sendJSONresponse(res,404,{message:err})
+        return
+    })
 }
