@@ -21,5 +21,5 @@ router.get('/login',adminController.renderLogin)
 router.post('/login', recaptcha.middleware.verify,adminController.login)
 
 // dashboard
-router.get('/dashboard',adminController.renderDashboard)
+router.get('/dashboard',auth,adminController.renderDashboard)
 module.exports = router

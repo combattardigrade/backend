@@ -34,8 +34,9 @@ module.exports.login = function(req,res) {
     }
 
     request(options, function(err, response, body) {
+        
         const token = body.token
-        if(token) {
+        if(token) {            
             request({
                 url: API_HOST + '/admin/checkPrivileges/' + email,
                 method: 'GET'
@@ -66,7 +67,7 @@ module.exports.login = function(req,res) {
                     })
                 }
             })
-        } else {
+        } else {            
             res.render('admin/login', {
                 title: 'Iniciar sesion',
                 csrf:req.csrfToken(),
@@ -75,9 +76,11 @@ module.exports.login = function(req,res) {
             })
         }
     })
+    
 }
 
-module.exports.renderDashboard = function(req,res) {
+module.exports.renderDashboard = function(req,res) {  
+    
     const options1 = {
         url: API_HOST + '/admin/users/countAll',
         method: 'GET',
@@ -115,7 +118,8 @@ module.exports.renderDashboard = function(req,res) {
             }
         })
         return
-    }) 
+    })
+    
 }
 
 module.exports.logout = function(req,res) {
