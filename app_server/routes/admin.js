@@ -22,4 +22,14 @@ router.post('/login', recaptcha.middleware.verify,adminController.login)
 
 // dashboard
 router.get('/dashboard',auth,adminController.renderDashboard)
+
+// scooters 
+router.get('/scooters/new', auth, adminController.renderNewScooter)
+router.post('/scooters/new',  auth, adminController.createNewScooter)
+router.get('/scooters/:status', auth, adminController.renderScooters)
+
+
+// users
+router.get('/users/all', auth, adminController.renderUsers)
+
 module.exports = router

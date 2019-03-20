@@ -1,0 +1,40 @@
+extends layout.pug
+
+block header
+    include header
+
+block content   
+    .container-fuild
+        .row
+            div(class='col-10 offset-1')
+                h6.mt-4 Total de #{title.toLowerCase()}: #{scooters.count} | Total de páginas: #{scooters.pages}
+                
+                h3.mt-4 #{title} - Página #{page}
+                .table-responsive
+                    table(class='table table-bordered table-striped ') 
+                        thead
+                            th Orden (ID)
+                            th Usuario (email)
+                            th Producto (código)
+                            th Total (MXN)
+                            th Método
+                            th Estado
+                            th Fecha de creación
+                            th Fuente
+                            th Ver orden
+                        tbody
+                        if scooters
+                            each scooter in scooters.result
+                                tr
+                                    td #{scooter.id}                                         
+                                    
+                                    td.tableBtn
+                                        a(href=host + '/admin/order/' + scooter.id class='btn btn-success') Ver orden
+                                      
+                - var nextPage = parseFloat(page) + 1;
+                - var prevPage = parseFloat(page) - 1;
+                if page > 1
+                    a(class='btn btn-success mr-3 mt-3' href='?page='+prevPage) <- Página #{prevPage} 
+                if page < scooters.pages
+                    a(class='btn btn-success mt-3' href='?page='+nextPage) Página #{nextPage} ->
+                

@@ -8,13 +8,17 @@ module.exports = (sequelize,DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        hash: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         birthday: {
             type: DataTypes.DATE,
-            allowNull: false           
+            allowNull: true           
         },
         battery: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: true
         },
         city: {
             type: DataTypes.STRING,
@@ -24,6 +28,16 @@ module.exports = (sequelize,DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
             defaultValue: 'inManufacture'
-        }        
+        },
+        lat: {            
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: '0'          
+        },
+        lng: {            
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: '0'          
+        }           
     })
 }

@@ -7,20 +7,19 @@ nav.navbar.navbar-expand-lg.navbar-dark(style='background-color:#212529 !importa
       li(class=(title == 'Dashboard' ? 'nav-item active' : 'nav-item'))
         a.nav-link(href=host + '/admin/dashboard')
           | Dashboard 
-          span.sr-only (current)
-      
+          span.sr-only (current)      
       
       li(class=(current == 'scooters' ? 'nav-item dropdown active' : 'nav-item dropdown'))
         a(class='nav-link dropdown-toggle' id='scootersDropdown' href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false') Scooters
         div(class='dropdown-menu' aria-labelledby='scootersDropdown')
-          a(class='dropdown-item' href=host + '/admin/scooters') Todos    
+          a(class='dropdown-item' href=host + '/admin/scooters/all?page=1') Todos    
           a(class='dropdown-item' href=host + '/admin/scooters/map') Mapa        
           a(class='dropdown-item' href=host + '/admin/scooters/new') Añadir scooter
 
       li(class=(current == 'users' ? 'nav-item dropdown active' : 'nav-item dropdown'))
         a(class='nav-link dropdown-toggle' id='usersDropdown' href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false') Usuarios
         div(class='dropdown-menu' aria-labelledby='usersDropdown')
-          a(class='dropdown-item' href=host + '/admin/users') Todos
+          a(class='dropdown-item' href=host + '/admin/users/all?page=1') Todos
            
 
       li(class=(current == 'balances' ? 'nav-item dropdown active' : 'nav-item dropdown'))

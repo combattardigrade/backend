@@ -1,5 +1,6 @@
 const request = require('request')
 const rp = require('request-promise')
+const crypto = require('crypto')
 const API_HOST = process.env.API_HOST
 const SERVER_HOST = process.env.SERVER_HOST
 
@@ -116,6 +117,109 @@ module.exports.renderDashboard = function(req,res) {
                 users,
                 scooters,
             }
+        })
+        return
+    })
+    
+}
+
+module.exports.renderNewScooter = function(req,res) {
+    res.render('admin/newScooter', {
+        host: SERVER_HOST,
+        title: 'Nuevo Scooter',
+        current: 'scooters',
+        csrf: req.csrfToken()        
+    })
+}
+
+module.exports.renderScooters = function(req,res) {
+    const status = req.params.status
+    const page = req.query.page
+
+    const options1 = {
+        url: API_HOST + '/admin/scooters/getAllByPage/' + status + '/' + page,
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + req.cookies.adminToken
+        } 
+    }
+    Promise.all([rp(options1)])
+    .then((values) => {
+        let scooters = JSON.parse(values[0])        
+        
+        res.render('admin/scooters',{
+            host: SERVER_HOST,
+            title: 'Scooters',
+            current: 'scooters',
+            csrf: req.csrfToken(),
+            scooters: scooters,
+            page: page,
+            status: status
+        })
+        return
+    })
+    
+}
+
+module.exports.createNewScooter = function(req,res){
+    const code = req.body.code
+    const batch = req.body.batch
+    const hash =  crypto.randomBytes(16).toString('hex')
+    const birthday = req.body.birthday
+    const city = req.body.city
+    const status = req.body.status
+
+    const options = {
+        url: API_HOST + '/admin/scooters/createNew',
+        method: 'POST',
+        json: {
+            code,
+            batch,
+            hash,
+            birthday,
+            city,
+            status
+        },
+        headers: {
+            'Authorization': 'Bearer ' + req.cookies.adminToken
+        } 
+    }
+
+    Promise.all([rp(options)])
+    .then((values) => {
+        let response = JSON.parse(values[0])
+        res.render('admin/newScooter', {
+            host: SERVER_HOST,
+            title: 'Nuevo Scooter',
+            current: 'scooters',
+            csrf: req.csrfToken(),
+            serverMsg: response        
+        })
+        return
+    })
+}
+
+module.exports.renderUsers = function(req,res) {   
+    const page = req.query.page
+
+    const options1 = {
+        url: API_HOST + '/admin/users/getAllByPage/' + page,
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + req.cookies.adminToken
+        } 
+    }
+    Promise.all([rp(options1)])
+    .then((values) => {
+        let users = JSON.parse(values[0])        
+        
+        res.render('admin/users',{
+            host: SERVER_HOST,
+            title: 'Usuarios',
+            current: 'users',
+            csrf: req.csrfToken(),
+            users: users,
+            page: page,            
         })
         return
     })

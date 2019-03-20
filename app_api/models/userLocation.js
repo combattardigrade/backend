@@ -1,6 +1,6 @@
 module.exports = (sequelize,DataTypes) => {
-    return sequelize.define('location',{
-        scooterId: {
+    return sequelize.define('userLocation',{
+        userId: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
@@ -13,6 +13,10 @@ module.exports = (sequelize,DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
             defaultValue: '0'
+        },
+        location: {
+            type: DataTypes.GEOMETRY('POINT'),
+            allowNull: true
         }
     })
 }
