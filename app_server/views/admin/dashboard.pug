@@ -1,0 +1,41 @@
+extends layout.pug
+
+block header
+    include header
+
+block content   
+    .container-fuild
+        .row
+            div(class='col-10 offset-1')
+                h3.mt-4 Datos generales
+                .table-responsive
+                    table(class='table table-bordered table-striped ') 
+                        thead
+                            th Dato
+                            th Total
+                            th
+                        tbody
+                            tr
+                                td Usuarios
+                                if usersCount
+                                    td #{usersCount.count}
+                                else
+                                    td 0
+                                td.tableBtn 
+                                    a(class='btn btn-primary' href=host + '/admin/users') Ver
+                            tr
+                                td Scooters
+                                if scootersCount
+                                    td #{scootersCount.count}
+                                else
+                                    td 0
+                                td.tableBtn 
+                                    a(class='btn btn-primary' href=host + '/admin/scooters') Ver                      
+                            tr
+                                td Órdenes
+                                if ordersCount
+                                    td #{ordersCount.count}
+                                else
+                                    td 0
+                                td.tableBtn 
+                                    a(class='btn btn-primary' href=host + '/admin/orders') Ver   

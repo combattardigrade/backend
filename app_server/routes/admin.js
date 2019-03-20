@@ -20,4 +20,6 @@ const adminController = require('../controllers/admin')
 router.get('/login',adminController.renderLogin)
 router.post('/login', recaptcha.middleware.verify,adminController.login)
 
+// dashboard
+router.get('/dashboard',adminController.renderDashboard)
 module.exports = router

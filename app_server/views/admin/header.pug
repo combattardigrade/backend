@@ -1,0 +1,51 @@
+nav.navbar.navbar-expand-lg.navbar-dark(style='background-color:#212529 !important')
+  a.navbar-brand(href=host + '/admin/dashboard') Panel de administración
+  button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarTogglerDemo02', aria-controls='navbarTogglerDemo02', aria-expanded='false', aria-label='Toggle navigation')
+    span.navbar-toggler-icon
+  #navbarTogglerDemo02.collapse.navbar-collapse
+    ul.navbar-nav.mr-auto.mt-2.mt-lg-0      
+      li(class=(title == 'Dashboard' ? 'nav-item active' : 'nav-item'))
+        a.nav-link(href=host + '/admin/dashboard')
+          | Dashboard 
+          span.sr-only (current)
+      
+      
+      li(class=(current == 'scooters' ? 'nav-item dropdown active' : 'nav-item dropdown'))
+        a(class='nav-link dropdown-toggle' id='scootersDropdown' href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false') Scooters
+        div(class='dropdown-menu' aria-labelledby='scootersDropdown')
+          a(class='dropdown-item' href=host + '/admin/scooters') Todos    
+          a(class='dropdown-item' href=host + '/admin/scooters/map') Mapa        
+          a(class='dropdown-item' href=host + '/admin/scooters/new') Añadir scooter
+
+      li(class=(current == 'users' ? 'nav-item dropdown active' : 'nav-item dropdown'))
+        a(class='nav-link dropdown-toggle' id='usersDropdown' href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false') Usuarios
+        div(class='dropdown-menu' aria-labelledby='usersDropdown')
+          a(class='dropdown-item' href=host + '/admin/users') Todos
+           
+
+      li(class=(current == 'balances' ? 'nav-item dropdown active' : 'nav-item dropdown'))
+        a(class='nav-link dropdown-toggle' id='balancesDropdown' href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false') Balances
+        div(class='dropdown-menu' aria-labelledby='balancesDropdown')
+          a(class='dropdown-item' href=host + '/admin/balances') Todos
+          
+
+      li(class=(current == 'orders' ? 'nav-item dropdown active' : 'nav-item dropdown'))
+        a(class='nav-link dropdown-toggle' id='ordersDropdown' href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false') Órdenes
+        div(class='dropdown-menu' aria-labelledby='ordersDropdown')
+          a(class='dropdown-item' href=host + '/admin/orders/completed') Completadas
+          a(class='dropdown-item' href=host + '/admin/orders/pending') Pendientes
+          a(class='dropdown-item' href=host + '/admin/order/create') Crear nueva 
+      li(class=(current == 'contact' ? 'nav-item active' : 'nav-item'))
+        a.nav-link(href=host + '/admin/contactMethods') Métodos de contacto
+  
+  .collapse.navbar-collapse.w-10.order-3.dual-collapse2
+    ul.navbar-nav.ml-auto
+      li(class=('nav-item'))
+        a.nav-link(href=host + '/admin/logout')
+          | Cerrar sesión 
+
+          
+      
+      
+     
+

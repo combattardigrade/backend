@@ -75,3 +75,11 @@ module.exports.login = function(req,res) {
         }
     })
 }
+
+module.exports.renderDashboard = function(req,res) {
+    res.render('admin/dashboard',{
+        host: process.env.SERVER_HOST,
+        title: 'Dashboard',
+         
+    }) 
+}
