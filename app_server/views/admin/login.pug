@@ -1,0 +1,24 @@
+extends layout.pug
+
+block content
+    div(class='container')
+        div(class='row mt-4')
+            div(class='col-12')
+                h1(class='mb-3') Iniciar sesión
+                form(action='login' method='post')               
+                    if serverMsg 
+                        div(class='serverMsg mb-3' style='color:red') #{serverMsg}
+                    div(class='input-group mb-3')
+                        div.input-group-prepend
+                            span.input-group-text 
+                                i(class='fa fa-user')
+                        input(name='email' type='email' placeholder='Ingresa tu email' class='form-control')
+                    div(class='input-group mb-3')
+                        div.input-group-prepend
+                            span.input-group-text 
+                                i(class='fa fa-lock')
+                        input(name='password' type='password' placeholder='Ingresa tu contraseña' class='form-control')
+                    input(type='hidden' value=`${csrf}`  name='_csrf')
+                    div(class='g-recaptcha' data-sitekey='6LfpvpgUAAAAAK8_Okrmz7eWpJogJdpJmBxdIO4y')
+                    button(type='submit' class='btn btn-primary btn-lg mt-2') Entrar
+            

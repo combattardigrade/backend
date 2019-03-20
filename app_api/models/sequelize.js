@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize')
 const UserModel = require('./user')
 const AuthRequestModel = require('./authRequest')
+const AdminModel = require('./admin')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -19,9 +20,11 @@ const sequelize = new Sequelize(
 
 const User = UserModel(sequelize,Sequelize)
 const AuthRequest = AuthRequestModel(sequelize,Sequelize)
+const Admin = AdminModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
+User.hasOne(Admin)
 
 sequelize.sync({force: false})
 .then(() => {
@@ -31,5 +34,6 @@ sequelize.sync({force: false})
 module.exports = {
     User,
     AuthRequest,
+    Admin,
     sequelize
 }

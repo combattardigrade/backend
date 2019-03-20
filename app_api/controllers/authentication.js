@@ -2,21 +2,102 @@ const passport = require('passport')
 const User = require('../models/sequelize').User
 const AuthRequest = require('../models/sequelize').AuthRequest
 const sequelize = require('../models/sequelize').sequelize
-// const smsController = require('./sms')
 const moment = require('moment')
+const sendJSONresponse = require('../../utils')
 const sms = require('../../utils/sms')
 const { Op } = require('sequelize')
+const crypto = require('crypto')
+const validator = require('email-validator')
 
-const sendJSONresponse = (res, status, content) => {
-    res.status(status)
-    res.json(content)
+module.exports.emailSignup = (req, res) => {
+    const email = req.body.email
+    const password = req.body.password
+
+    if (!email || !password) {
+        sendJSONresponse(res, 422, { message: 'Missing required parameter' })
+        return
+    }
+
+    if(!validator.validate(email)) {
+        sendJSONresponse(res,404,{message: 'Ingresa un email válido'})
+        return
+    }
+
+    sequelize.transaction((t) => {
+        return User.findOrCreate({
+            where: {
+                email: email
+            },
+            transaction: t
+        })
+            .spread(function (user, created) {
+                if (!created) {
+                    sendJSONresponse(res, 404, { message: 'El email ya se encuentra registrado' })
+                    return
+                }
+
+                user.setPassword(password)
+                const token = user.generateJwt()
+
+                return user.save({ transaction: t })
+                    .then(function () {
+                        // activation request
+                        return AuthRequest.create({
+                            userId: user.id,
+                            action: 'emailVerification',
+                            code: crypto.randomBytes(16).toString('hex'),
+                            used: 0
+                        }, { transaction: t })
+                            .then(function (request) {
+                                if (!request) {
+                                    sendJSONresponse(res, 404, { message: 'Error creating account' })
+                                    return
+                                }
+                                sendJSONresponse(res, 200, { token: token })
+                                let url = 'http://localhost:3000/api/emailVerification/' + request.code
+                                /*emailController.sendActivationEmail({ email: email, url: url }, function () {
+                                    return
+                                })*/
+                                return
+                            })
+                    })
+            })
+    })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res, 404, { message: 'Error creating account' })
+            return
+        })
+}
+
+module.exports.emailLogin = (req, res) => {
+    const email = req.body.email
+    const password = req.body.password
+
+    if (!email || !password) {
+        sendJSONresponse(res, 422, { message: 'Missing required parameter' })
+        return
+    }
+
+    passport.authenticate('local', function (err, token, info) {
+        if (err) {
+            sendJSONresponse(res, 404, err)
+            return
+        }
+        if (token) {
+            sendJSONresponse(res, 200, { token: token })
+            return
+        } else {
+            sendJSONresponse(res, 401, info)
+            return
+        }
+    })(req, res)
 }
 
 module.exports.confirmCode = (req, res) => {
     const phone = req.body.phone
     const code = req.body.code
 
-    console.log(code)
     if (!phone || !code) {
         sendJSONresponse(res, 422, { message: 'Missing required parameter' })
         return
@@ -56,7 +137,7 @@ module.exports.confirmCode = (req, res) => {
                         return request.save({ transaction: t })
                             .then(() => {
                                 // update account level
-                                user.accountLevel = 1
+                                user.phoneVerified = 1
                                 return user.save({ transaction: t })
                                     .then(() => {
                                         // generate JWT token

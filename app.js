@@ -32,7 +32,7 @@ app.use('/api', routesApi)
 app.use(cookieParser())
 app.use(csurf({ cookie: true }))
 // app.use('/',routes)
-// app.use('/admin',routesAdmin) 
+app.use('/admin',routesAdmin) 
 
 // error handlers
 // catch unauthorized errors
