@@ -1,4 +1,5 @@
 const request = require('request')
+const rp = require('request-promise')
 const API_HOST = process.env.API_HOST
 const SERVER_HOST = process.env.SERVER_HOST
 
@@ -77,9 +78,50 @@ module.exports.login = function(req,res) {
 }
 
 module.exports.renderDashboard = function(req,res) {
-    res.render('admin/dashboard',{
-        host: process.env.SERVER_HOST,
-        title: 'Dashboard',
-         
+    const options1 = {
+        url: API_HOST + '/admin/users/countAll',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + req.cookies.adminToken
+        } 
+    }
+    const options2 = {
+        url: API_HOST + '/admin/scooters/count/all',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + req.cookies.adminToken
+        } 
+    }
+    const options3 = {
+        url: API_HOST + '/admin/scooters/count/all',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + req.cookies.adminToken
+        } 
+    }
+   
+
+    Promise.all([rp(options1),rp(options2)])
+    .then((values) => {
+        let users = JSON.parse(values[0])
+        let scooters = JSON.parse(values[1])
+        
+        res.render('admin/dashboard',{
+            host: SERVER_HOST,
+            title: 'Dashboard',
+            data: {
+                users,
+                scooters,
+            }
+        })
+        return
     }) 
+}
+
+module.exports.logout = function(req,res) {
+    res.clearCookie('token')
+    res.writeHead(302, {
+        'Location': 'login'
+    })
+    res.end()
 }

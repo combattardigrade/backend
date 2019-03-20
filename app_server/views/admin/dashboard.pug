@@ -17,24 +17,24 @@ block content
                         tbody
                             tr
                                 td Usuarios
-                                if usersCount
-                                    td #{usersCount.count}
+                                if data.users
+                                    td #{data.users.count}
                                 else
                                     td 0
                                 td.tableBtn 
                                     a(class='btn btn-primary' href=host + '/admin/users') Ver
                             tr
                                 td Scooters
-                                if scootersCount
-                                    td #{scootersCount.count}
+                                if data.scooters
+                                    td #{data.scooters.count}
                                 else
                                     td 0
                                 td.tableBtn 
                                     a(class='btn btn-primary' href=host + '/admin/scooters') Ver                      
                             tr
                                 td Órdenes
-                                if ordersCount
-                                    td #{ordersCount.count}
+                                if data.orders
+                                    td #{data.orders.count}
                                 else
                                     td 0
                                 td.tableBtn 

@@ -2,6 +2,7 @@ const Sequelize = require('sequelize')
 const UserModel = require('./user')
 const AuthRequestModel = require('./authRequest')
 const AdminModel = require('./admin')
+const ScooterModel = require('./scooter')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -21,6 +22,7 @@ const sequelize = new Sequelize(
 const User = UserModel(sequelize,Sequelize)
 const AuthRequest = AuthRequestModel(sequelize,Sequelize)
 const Admin = AdminModel(sequelize,Sequelize)
+const Scooter = ScooterModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
@@ -35,5 +37,6 @@ module.exports = {
     User,
     AuthRequest,
     Admin,
+    Scooter,
     sequelize
 }
