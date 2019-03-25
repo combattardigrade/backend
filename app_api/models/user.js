@@ -33,6 +33,16 @@ module.exports = (sequelize,DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
+        },
+        country: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: 'MX'
+        },
+        currency: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: 'MXN'
         }
     })
 

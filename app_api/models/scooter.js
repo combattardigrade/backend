@@ -16,6 +16,10 @@ module.exports = (sequelize,DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true           
         },
+        bluetoothMAC: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         battery: {
             type: DataTypes.STRING,
             allowNull: true

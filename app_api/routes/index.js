@@ -11,6 +11,9 @@ const scooterController = require('../controllers/scooter')
 const userController = require('../controllers/user')
 const orderController = require('../controllers/order')
 const scooterLocationController = require('../controllers/scooterLocation')
+const balanceController = require('../controllers/balance')
+const priceController = require('../controllers/price')
+const rideController = require('../controllers/ride')
 
 // authentication
 router.post('/auth/phone',authenticationController.phone)
@@ -23,11 +26,21 @@ router.post('/auth/email/signup',authenticationController.emailSignup)
 router.post('/auth/email/login',authenticationController.emailLogin)
 
 // scooters
+router.post('/scooters/getActivationData', auth, scooterController.getActivationData)
 //router.get('/scooters/getNearLocation', auth, scooterController.getNearLocation)
 
 // location
 router.post('/locations/scooter/saveScooterLocation', scooterLocationController.saveScooterLocation)
 router.get('/locations/scooter/getScootersNearLocation', auth, scooterLocationController.getScootersNearLocation)
+
+// price
+router.get('/prices/:city', auth, priceController.getPrices)
+
+// user => balance
+router.get('/user/balance/:currency', auth, balanceController.getBalance)
+
+// rides
+router.post('/ride/start', auth, rideController.startRide)
 
 // admin
 router.post('/admin/givePrivileges',auth,adminController.givePrivileges)

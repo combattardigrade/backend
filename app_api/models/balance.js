@@ -5,7 +5,7 @@ module.exports = (sequelize,DataTypes) => {
             allowNull: false,
         },
         amount: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.BIGINT(16),
             allowNull: false,
             defaultValue: '0'
         },

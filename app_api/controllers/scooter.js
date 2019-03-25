@@ -7,43 +7,34 @@ const { Op } = require('sequelize');
 const crypto = require('crypto')
 const moment = require('moment')
 
-
-module.exports.getNearLocation = function (req,res) {
+module.exports.getActivationData = function(req,res) {
     const userId = req.user.id
-    const lat = parseFloat(req.query.lat)
-    const lng = parseFloat(req.query.lng)
-    
+    const code = req.body.code
 
-    if(!userId || !lat || !lng) {
-        sendJSONresponse(res,422,{message:'Missing required parameters'})
+    if(!userId || !code) {
+        sendJSONresponse(res,422,{message:'Missing required arguments'})
         return
-    } 
-    // get Model attribuets
-    var attributes = Object.keys(Location.attributes)    
-    // set location
-    var location = sequelize.literal(`ST_GeomFromText('POINT(${lng} ${lat})')`);
-    // distantce
-    var distance = sequelize.fn('ST_Distance_Sphere', sequelize.literal('location'), location);
-    // insert distance into Model attributes
-    attributes.push([distance,'distance']);
-    
-    Location.findAll({
-        attributes: attributes,
-        order: [['distance','ASC',['createdAt','DESC']]],
-        where: {
-            distance: {
-                [Op.lte]: 10000
-            }, 
-        },
-        logging: console.log
-    })
-    .then((instance) => {
-        sendJSONresponse(res,200,{instance})
-        return 
-    })
-    //sendJSONresponse(res,200,{location})
-    //return
+    }
 
+    Scooter.findOne({
+        where: {
+            code,
+        },
+        attributes: ['id','code','hash','bluetoothMAC','status']
+    })
+    .then((scooter) => {
+        if(!scooter) {
+            sendJSONresponse(res,404,{message:'Scooter not found'})
+            return
+        }
+        sendJSONresponse(res,200,{ scooter })
+        return
+    })
+    .catch((err) => {
+        console.log(err)
+        sendJSONresponse(res,404,{message:'Error fetching scooter information'})
+        return
+    })
 }
 
 module.exports.create = function (req, res) {
@@ -56,7 +47,7 @@ module.exports.create = function (req, res) {
     const city = req.body.city
     const status = req.body.status
 
-    console.log(birthday)
+    
     if (!code || !batch || !hash || !birthday || !battery || !city || !status) {
         sendJSONresponse(res, 422, { message: 'All fields required' })
         return
