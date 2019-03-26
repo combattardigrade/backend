@@ -1,6 +1,6 @@
 const Scooter = require('../models/sequelize').Scooter
 const ScooterLocation = require('../models/sequelize').ScooterLocation
-const sendJSONresponse = require('../../utils/index.js')
+const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const sequelize = require('../models/sequelize').sequelize
 const { Op } = require('sequelize');
 const crypto = require('crypto')
