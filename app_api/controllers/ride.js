@@ -2,8 +2,8 @@ const User = require('../models/sequelize').User
 const Balance = require('../models/sequelize').Balance
 const Scooter = require('../models/sequelize').Scooter
 const Price = require('../models/sequelize').Price
-const Transaction = require('../models/sequelize').Transaction
 const Ride = require('../models/sequelize').Ride
+const Transaction = require('../models/sequelize').Transaction
 
 const sequelize = require('../models/sequelize').sequelize
 const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
@@ -12,6 +12,8 @@ const printMoney = require('../../utils/index.js').printMoney
 module.exports.startRide = function (req, res) {
     const userId = req.user.id
     const scooterHash = req.body.scooterHash
+    const startLat = req.body.startLat
+    const startLng = req.body.startLng
 
     if (!userId || !scooterHash) {
         sendJSONresponse(res, 422, { message: 'Missing required arguments' })
@@ -61,7 +63,7 @@ module.exports.startRide = function (req, res) {
                                     where: {
                                         city: scooter.city
                                     },
-                                    attributes: ['minute', 'unlock', 'currency', 'minRide'],
+                                    attributes: ['minute', 'unlock', 'currency', 'minRide', 'tax'],
                                     transaction: t
                                 })
                                     .then((prices) => {
@@ -86,8 +88,8 @@ module.exports.startRide = function (req, res) {
                                                 }, { transaction: t })
                                                     .then((ride) => {
                                                         // prepare data
-                                                        let tax = (prices.unlock * prices.tax)
-                                                        let amount = (prices.unlock) - tax
+                                                        var tax = prices.unlock * prices.tax
+                                                        var amount = prices.unlock - tax
 
                                                         // create transaction
                                                         return Transaction.create({
@@ -100,8 +102,13 @@ module.exports.startRide = function (req, res) {
                                                             tax,
                                                         }, { transaction: t })
                                                             .then((tx) => {
-                                                                sendJSONresponse(res, 200, { message: 'Scooter unlocked' })
-                                                                return
+                                                                // update scooter status
+                                                                scooter.status = 'inUse'
+                                                                return scooter.save({ transaction: t })
+                                                                    .then(() => {
+                                                                        sendJSONresponse(res, 200, { message: 'Scooter unlocked' })
+                                                                        return
+                                                                    })
                                                             })
                                                     })
                                             })
@@ -113,6 +120,82 @@ module.exports.startRide = function (req, res) {
         .catch((err) => {
             console.log(err)
             sendJSONresponse(res, 404, { message: 'Error starting ride' })
+            return
+        })
+}
+
+// check if user can start new ride
+module.exports.checkNewRide = function (req, res) {
+    const userId = req.user.id
+    const scooterHash = req.body.scooterHash
+
+    if (!userId || !scooterHash) {
+        sendJSONresponse(res, 422, { message: 'Missing required arguments' })
+        return
+    }
+
+    sequelize.transaction((t) => {
+        return User.findOne({
+            where: {
+                id: userId
+            }
+        })
+            .then((user) => {
+                if (!user) {
+                    sendJSONresponse(res, 404, { message: 'El usuario no existe' })
+                    return
+                }
+                // get user balance
+                return Balance.findOrCreate({
+                    where: {
+                        userId,
+                        currency: user.currency
+                    },
+                    attributes: ['id', 'amount'],
+                    transaction: t
+                })
+                    .spread((balance, created) => {
+                        // get scooter
+                        return Scooter.findOne({
+                            where: {
+                                hash: scooterHash,
+                                status: 'available'
+                            },
+                            transaction: t
+                        })
+                            .then((scooter) => {
+                                if (!scooter) {
+                                    sendJSONresponse(res, 404, { message: 'Scooter no disponible' })
+                                    return
+                                }
+
+                                return Price.findOne({
+                                    where: {
+                                        city: scooter.city
+                                    },
+                                    attributes: ['minute', 'unlock', 'currency', 'minRide', 'tax'],
+                                    transaction: t
+                                })
+                                    .then((prices) => {
+                                        // calculate if user has enough balance
+                                        let minTotal = prices.unlock + (prices.minute * prices.minRide)
+
+                                        // if not enough balance to unlock scooter
+                                        if (balance.amount < minTotal) {
+                                            sendJSONresponse(res, 404, { message: 'Necesitas tener un balance mínimo de ' + printMoney(minTotal, prices.currency) + ' para poder iniciar el viaje' })
+                                            return
+                                        }
+
+                                        sendJSONresponse(res, 200, { message: 'OK' })
+                                        return
+                                    })
+                            })
+                    })
+            })
+    })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res, 404, { message: 'Error checking balance' })
             return
         })
 }

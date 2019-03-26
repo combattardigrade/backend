@@ -41,6 +41,7 @@ router.get('/user/balance/:currency', auth, balanceController.getBalance)
 
 // rides
 router.post('/ride/start', auth, rideController.startRide)
+router.post('/ride/checkNewRide', auth, rideController.checkNewRide)
 
 // admin
 router.post('/admin/givePrivileges',auth,adminController.givePrivileges)

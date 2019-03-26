@@ -6,12 +6,14 @@ const { Op } = require('sequelize');
 const crypto = require('crypto')
 const moment = require('moment')
 
-module.exports.getBalance = function(req,res) {
+
+
+module.exports.getBalance = function (req, res) {
     const userId = req.user.id
     const currency = req.params.currency
-    
-    if(!userId || !currency) {
-        sendJSONresponse(res,422,{message:'Missing required arguments'})
+
+    if (!userId || !currency) {
+        sendJSONresponse(res, 422, { message: 'Missing required arguments' })
         return
     }
 
@@ -24,7 +26,7 @@ module.exports.getBalance = function(req,res) {
             include: [
                 {
                     model: Balance,
-                    attributes: ['amount','currency'],
+                    attributes: ['amount', 'currency'],
                     where: {
                         currency,
                     }
@@ -32,19 +34,18 @@ module.exports.getBalance = function(req,res) {
             ],
             transaction: t
         })
-        .then((user) => {
-            if(!user) {
-                sendJSONresponse(res,404,{message: 'User does not exist'})
+            .then((user) => {
+                if (!user) {
+                    sendJSONresponse(res, 404, { message: 'User does not exist' })
+                    return
+                }
+                sendJSONresponse(res, 200, { user })
                 return
-            }
-            sendJSONresponse(res,200,{user})
+            })
+    })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res, 404, { message: 'Error fetching balance' })
             return
         })
-    })
-    .catch((err) => {
-        console.log(err)
-        sendJSONresponse(res,404,{message:'Error fetching balance'})
-        return
-    })
-    
 }

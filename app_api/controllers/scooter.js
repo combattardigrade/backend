@@ -1,7 +1,7 @@
 const Scooter = require('../models/sequelize').Scooter
 const Admin = require('../models/sequelize').Admin
 const Location = require('../models/sequelize').Location
-const sendJSONresponse = require('../../utils/index.js')
+const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const sequelize = require('../models/sequelize').sequelize
 const { Op } = require('sequelize');
 const crypto = require('crypto')
@@ -20,7 +20,7 @@ module.exports.getActivationData = function(req,res) {
         where: {
             code,
         },
-        attributes: ['id','code','hash','bluetoothMAC','status']
+        attributes: ['id','code','hash','bluetoothMAC','city','status']
     })
     .then((scooter) => {
         if(!scooter) {

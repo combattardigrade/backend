@@ -47,7 +47,7 @@ UserLocation.belongsTo(User)
 User.hasMany(Transaction)
 Transaction.belongsTo(User)
 User.hasMany(Ride)
-Ride.belongsTo(Ride)
+Ride.belongsTo(User)
 Ride.hasMany(Transaction)
 Transaction.belongsTo(Ride)
 
@@ -66,6 +66,7 @@ module.exports = {
     ScooterLocation,
     UserLocation,
     Price,
+    Ride,
     Transaction,
     sequelize
 }

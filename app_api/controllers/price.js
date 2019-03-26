@@ -1,5 +1,5 @@
 const Price = require('../models/sequelize').Price
-const sendJSONresponse = require('../../utils/index.js')
+const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 
 module.exports.getPrices = function(req,res) {
     const userId = req.user.id
@@ -20,7 +20,7 @@ module.exports.getPrices = function(req,res) {
             sendJSONresponse(res,404,{message:'Prices for the city not found'})
             return
         }
-        sendJSONresponse(res,200,{prices})
+        sendJSONresponse(res,200,prices)
         return
     })
     .catch((err) => {
