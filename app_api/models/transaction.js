@@ -13,7 +13,7 @@ module.exports = (sequelize,DataTypes) => {
             allowNull: false
         },
         total: {
-            type: DataTypes.BIGINT(16),
+            type: DataTypes.DECIMAL(16,8),
             allowNull: true,
             defaultValue: 0
         },
@@ -23,12 +23,12 @@ module.exports = (sequelize,DataTypes) => {
             defaultValue: 'MXN'
         },
         amount: {
-            type: DataTypes.BIGINT(16),
+            type: DataTypes.DECIMAL(16,8),
             allowNull: true,
             defaultValue: 0           
         },
         tax: {
-            type: DataTypes.BIGINT(16),
+            type: DataTypes.DECIMAL(16,8),
             allowNull: true,
             defaultValue: 0 
         }              

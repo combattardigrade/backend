@@ -5,12 +5,12 @@ module.exports = (sequelize,DataTypes) => {
             allowNull: false,
         },
         minute: {
-            type: DataTypes.BIGINT(16),
+            type: DataTypes.DECIMAL(16,8),
             allowNull: false,
             defaultValue: 0
         },
         unlock: {
-            type: DataTypes.BIGINT(16),
+            type: DataTypes.DECIMAL(16,8),
             allowNull: false,
             defaultValue: 0
         },
@@ -20,9 +20,9 @@ module.exports = (sequelize,DataTypes) => {
             defaultValue: 5
         },
         tax: {
-            type: DataTypes.BIGINT(16),
+            type: DataTypes.DECIMAL(16,8),
             allowNull: true,
-            defaultValue: 16000000
+            defaultValue: 0.16
         },
         currency: {
             type: DataTypes.STRING,

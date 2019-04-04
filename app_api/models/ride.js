@@ -27,6 +27,15 @@ module.exports = (sequelize,DataTypes) => {
         endTimestamp: {
             type: DataTypes.DATE,
             allowNull: true
-        } 
+        },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: 'active'
+        },
+        city: {
+            type: DataTypes.STRING,
+            allowNull: true,            
+        }
     })
 }

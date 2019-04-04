@@ -15,6 +15,8 @@ const balanceController = require('../controllers/balance')
 const priceController = require('../controllers/price')
 const rideController = require('../controllers/ride')
 
+const testController = require('../controllers/test')
+
 // authentication
 router.post('/auth/phone',authenticationController.phone)
 // resend code
@@ -41,13 +43,15 @@ router.get('/user/balance/:currency', auth, balanceController.getBalance)
 
 // rides
 router.post('/ride/start', auth, rideController.startRide)
+router.post('/ride/end', auth, rideController.endRide)
 router.post('/ride/checkNewRide', auth, rideController.checkNewRide)
+router.get('/ride/current', auth, rideController.getRideData)
 
 // admin
 router.post('/admin/givePrivileges',auth,adminController.givePrivileges)
 router.get('/admin/checkPrivileges/:email',adminController.checkPrivileges)
 // admin => scooters
-router.post('/admin/scooters/create', auth, scooterController.create)
+router.post('/admin/scooter/create', auth, scooterController.create)
 router.get('/admin/scooters/count/:status', auth, scooterController.countByStatus)
 router.get('/admin/scooters/getAllByPage/:status/:page', auth, scooterController.getAllByPage)
 // admin => users
@@ -56,5 +60,7 @@ router.get('/admin/users/getAllByPage/:page', auth, userController.getAllByPage)
 // admin => orders
 router.get('/admin/orders/count/:status', auth, orderController.countByStatus);
 
+router.get('/test/sms', testController.sendSms)
+router.get('/test', testController.test)
 
 module.exports = router

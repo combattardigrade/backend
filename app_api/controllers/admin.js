@@ -1,6 +1,6 @@
 const User = require('../models/sequelize').User
 const Admin = require('../models/sequelize').Admin
-const sendJSONresponse = require('../../utils/index.js')
+const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const { Op } = require('sequelize');
 
 module.exports.givePrivileges = function(req,res) {

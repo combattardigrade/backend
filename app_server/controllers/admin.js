@@ -128,7 +128,7 @@ module.exports.renderNewScooter = function(req,res) {
         host: SERVER_HOST,
         title: 'Nuevo Scooter',
         current: 'scooters',
-        csrf: req.csrfToken()        
+        csrf: req.csrfToken(),        
     })
 }
 
@@ -170,7 +170,7 @@ module.exports.createNewScooter = function(req,res){
     const status = req.body.status
 
     const options = {
-        url: API_HOST + '/admin/scooters/createNew',
+        url: API_HOST + '/admin/scooter/create',
         method: 'POST',
         json: {
             code,
@@ -184,10 +184,21 @@ module.exports.createNewScooter = function(req,res){
             'Authorization': 'Bearer ' + req.cookies.adminToken
         } 
     }
-
+    
+    
     Promise.all([rp(options)])
     .then((values) => {
-        let response = JSON.parse(values[0])
+        let response = values[0]
+        res.render('admin/newScooter', {
+            host: SERVER_HOST,
+            title: 'Nuevo Scooter',
+            current: 'scooters',
+            csrf: req.csrfToken(),
+            serverMsg: 'Scooter creado correctamente'       
+        })        
+    })
+    .catch((err) => {
+        let response = err.error        
         res.render('admin/newScooter', {
             host: SERVER_HOST,
             title: 'Nuevo Scooter',
@@ -195,8 +206,8 @@ module.exports.createNewScooter = function(req,res){
             csrf: req.csrfToken(),
             serverMsg: response        
         })
-        return
     })
+    
 }
 
 module.exports.renderUsers = function(req,res) {   

@@ -11,25 +11,36 @@ block content
                 
                 h3.mt-4 #{title} - Página #{page}
                 .table-responsive
-                    table(class='table table-bordered table-striped ') 
+                    table(class='table table-bordered table-striped table-responsive') 
                         thead
-                            th Orden (ID)
-                            th Usuario (email)
-                            th Producto (código)
-                            th Total (MXN)
-                            th Método
-                            th Estado
-                            th Fecha de creación
-                            th Fuente
-                            th Ver orden
+                            th Scooter (ID)
+                            th Batch
+                            th Code
+                            th Hash 
+                            th BluetoothMAC
+                            th Battery
+                            th Status
+                            th City
+                            th Latitude
+                            th Longitude                            
+                            th Ver scooter
                         tbody
                         if scooters
                             each scooter in scooters.result
                                 tr
-                                    td #{scooter.id}                                         
+                                    td #{scooter.id}   
+                                    td #{scooter.batch}                                      
+                                    td #{scooter.code}
+                                    td #{scooter.hash}
+                                    td #{scooter.bluetoothMAC}
+                                    td #{scooter.battery}                                    
+                                    td #{scooter.status}
+                                    td #{scooter.city}
+                                    td #{scooter.lat}
+                                    td #{scooter.lng}
                                     
                                     td.tableBtn
-                                        a(href=host + '/admin/order/' + scooter.id class='btn btn-success') Ver orden
+                                        a(href=host + '/admin/scooter/' + scooter.id class='btn btn-success') Ver
                                       
                 - var nextPage = parseFloat(page) + 1;
                 - var prevPage = parseFloat(page) - 1;

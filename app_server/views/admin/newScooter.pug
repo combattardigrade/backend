@@ -2,14 +2,15 @@ extends layout.pug
 
 block header
     include header
+    
 
 block content   
     .container-fuild                          
         .row.mt-4
             div(class='col-sm-12 col-md-5 offset-md-1')
                 h3.mt-3 Añadir nuevo Scooter
-                form(action='' method='post')
-                    if serverMsg
+                form(action='' method='post')                    
+                    if serverMsg                        
                         if serverMsg.message
                             label(style='color:red;font-weight:bold') #{serverMsg.message}
                         else
@@ -18,26 +19,37 @@ block content
                     .input-group.mb-3
                         .input-group-prepend
                             span.input-group-text Code                               
-                        input(name='userId' type='text' class='form-control' placeholder='Code')
+                        input(name='code' type='text' class='form-control' placeholder='Code')
                     .input-group.mb-3
                         .input-group-prepend
                             span.input-group-text Batch                                
-                        input(name='unitPrice' type='number' class='form-control' placeholder='Batch')
+                        input(name='batch' type='text' class='form-control' placeholder='Batch')
                     .input-group.mb-3
                         .input-group-prepend
                             span.input-group-text Birthday                               
-                        input(name='quantity' type='number' class='form-control' placeholder='Birthday')
+                        input(name='birthday' id='datepicker' type='text' class='form-control' placeholder='Birthday')
                     .input-group.mb-3
                         .input-group-prepend
                             span.input-group-text City                                
-                        input(name='currency' type='text' class='form-control' placeholder='City' )
+                        input(name='city' type='text' class='form-control' placeholder='City' )
                     .input-group.mb-3
                         .input-group-prepend
                             span.input-group-text Status                                
-                        input(name='currency' type='text' class='form-control' placeholder='Status' )
+                        input(name='status' type='text' class='form-control' placeholder='Status' )
                                          
                     input(type='hidden' value=csrf name='_csrf')
                     input(type='submit' class='btn btn-primary' value='Enviar')
+block script
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    script.
+        $(document).ready(function(){
+           $('#datepicker').daterangepicker({
+               singleDatePicker: true,
+               showDropdowns: true,               
+           })
+        })
                         
         
         

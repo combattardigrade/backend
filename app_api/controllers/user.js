@@ -1,6 +1,6 @@
 const User = require('../models/sequelize').User
 const Admin = require('../models/sequelize').Admin
-const sendJSONresponse = require('../../utils/index.js')
+const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const sequelize = require('../models/sequelize').sequelize
 
 module.exports.getAllByPage = function (req, res) {

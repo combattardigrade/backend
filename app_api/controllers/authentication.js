@@ -3,8 +3,12 @@ const User = require('../models/sequelize').User
 const AuthRequest = require('../models/sequelize').AuthRequest
 const sequelize = require('../models/sequelize').sequelize
 const moment = require('moment')
-const sendJSONresponse = require('../../utils')
-const sms = require('../../utils/sms')
+const sendJSONresponse = require('../../utils').sendJSONresponse
+const Nexmo = require('nexmo')
+const sms = new Nexmo({
+    apiKey: process.env.NEXMO_API_KEY,
+    apiSecret: process.env.NEXMO_API_SECRET    
+})
 const { Op } = require('sequelize')
 const crypto = require('crypto')
 const validator = require('email-validator')

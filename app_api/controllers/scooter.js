@@ -42,13 +42,12 @@ module.exports.create = function (req, res) {
     const code = req.body.code
     const batch = req.body.batch
     const hash = crypto.randomBytes(16).toString('hex')
-    const birthday = moment(req.body.birthday, 'DD-MM-YYYY').toDate();
-    const battery = req.body.battery
+    const birthday = moment(req.body.birthday, 'DD-MM-YYYY').toDate();   
     const city = req.body.city
     const status = req.body.status
 
     
-    if (!code || !batch || !hash || !birthday || !battery || !city || !status) {
+    if (!code || !batch || !hash || !birthday || !city || !status) {
         sendJSONresponse(res, 422, { message: 'All fields required' })
         return
     }
@@ -75,8 +74,7 @@ module.exports.create = function (req, res) {
                         code,
                         batch,
                         hash,
-                        birthday,
-                        battery,
+                        birthday,                        
                         city,
                         status
                     },
