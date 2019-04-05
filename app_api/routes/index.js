@@ -27,6 +27,10 @@ router.post('/auth/phone/confirmCode',authenticationController.confirmCode)
 router.post('/auth/email/signup',authenticationController.emailSignup)
 router.post('/auth/email/login',authenticationController.emailLogin)
 
+// user 
+router.post('/user/changeName', auth, userController.changeName)
+
+
 // scooters
 router.post('/scooters/getActivationData', auth, scooterController.getActivationData)
 //router.get('/scooters/getNearLocation', auth, scooterController.getNearLocation)

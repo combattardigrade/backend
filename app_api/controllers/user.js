@@ -3,6 +3,45 @@ const Admin = require('../models/sequelize').Admin
 const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const sequelize = require('../models/sequelize').sequelize
 
+module.exports.changeName = function(req,res){
+    const userId = req.user.id
+    const firstName = req.body.firstName
+    const lastName = req.body.lastName
+    
+    if(!userId || !firstName || !lastName) {
+        sendJSONresponse(res,422,{message:'Missing required arguments'})
+        return
+    }
+    console.log('test')
+    sequelize.transaction((t) => {
+        return User.findOne({
+            where: {
+                id: userId
+            },
+            attributes: ['id','firstName','lastName'],
+            transaction: t
+        })
+        .then((user) => {
+            if(!user) {
+                sendJSONresponse(res,404,{message: 'User does not exist'})
+                return
+            }
+            user.firstName = firstName
+            user.lastName = lastName
+            return user.save({transaction: t})
+            .then(() => {
+                sendJSONresponse(res,200,{status: 'OK',message:'Name saved correctly'})
+                return
+            })
+        })
+    })
+    .catch((err) => {
+        console.log(err)
+        sendJSONresponse(res,404,{message:'An error occured while trying to change name'})
+        return
+    })
+}
+
 module.exports.getAllByPage = function (req, res) {
     const userId = req.user.id 
     var page = req.params.page 
