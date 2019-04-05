@@ -15,6 +15,53 @@ const moment = require('moment')
 const BigNumber = require('bignumber.js');
 
 
+module.exports.getRideHistory = function(req,res) {
+    const userId = req.user.id
+
+    if(!userId) {
+        sendJSONresponse(res, 422, { message: 'Missing required arguments' })
+        return
+    }
+
+    sequelize.transaction((t) => {
+        return User.findOne({
+            where: {
+                id: userId
+            },
+            transaction: t
+        })
+        .then((user) => {
+            if(!user) {
+                sendJSONresponse(res,404,{message: 'User does not exist'})
+                return
+            }
+            return Ride.findAll({
+                where: {
+                    userId,
+                    status: 'completed'
+                },
+                limit: 10,
+                order: [['createdAt', 'DESC']],
+                transaction: t
+            })
+            .then((rides) => {
+                if(!rides || rides.length === 0) {
+                    sendJSONresponse(res,404,{message:'No rides found'})
+                    return
+                }
+
+                sendJSONresponse(res,200,{rides})
+                return
+            })
+        })
+    })
+    .catch((err) => {
+        sendJSONresponse(res,404,{message: 'An error occured while fetching ride history'})
+        console.log(err)
+        return
+    })
+}
+
 module.exports.getRideData = function (req, res) {
     const userId = req.user.id
 

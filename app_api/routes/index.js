@@ -46,6 +46,7 @@ router.post('/ride/start', auth, rideController.startRide)
 router.post('/ride/end', auth, rideController.endRide)
 router.post('/ride/checkNewRide', auth, rideController.checkNewRide)
 router.get('/ride/current', auth, rideController.getRideData)
+router.get('/rides/history', auth, rideController.getRideHistory)
 
 // admin
 router.post('/admin/givePrivileges',auth,adminController.givePrivileges)
