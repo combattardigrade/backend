@@ -39,18 +39,40 @@ module.exports.getRideHistory = function(req,res) {
                 where: {
                     userId,
                     status: 'completed'
-                },
+                }, 
                 limit: 10,
                 order: [['createdAt', 'DESC']],
+                include: [
+                    {
+                        model: Transaction,
+                        where: {
+                            rideId: {$col: 'Ride.id'}
+                        },
+                        attributes: [       
+                            'id', 'total'
+                        ],
+                        
+                    }
+                ],   
+                         
                 transaction: t
             })
             .then((rides) => {
                 if(!rides || rides.length === 0) {
                     sendJSONresponse(res,404,{message:'No rides found'})
                     return
-                }
-
-                sendJSONresponse(res,200,{rides})
+                }      
+                rides = JSON.parse(JSON.stringify(rides))
+                
+                rides = rides.map((ride) => {
+                    let totalsArray = ride.transactions.map((tx) => tx.total)
+                    ride.totalCost = totalsArray.reduce((total, amount) =>{
+                        return BigNumber(total).plus(BigNumber(amount))                     
+                    })                                       
+                    return ride
+                })              
+                
+                sendJSONresponse(res,200,rides)
                 return
             })
         })
