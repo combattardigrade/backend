@@ -3,7 +3,7 @@ const Admin = require('../models/sequelize').Admin
 const Location = require('../models/sequelize').Location
 const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const sequelize = require('../models/sequelize').sequelize
-const { Op } = require('sequelize');
+const { Op } = require('sequelize')
 const crypto = require('crypto')
 const moment = require('moment')
 

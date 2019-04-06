@@ -5,7 +5,9 @@ const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const validateEmail = require('../../utils/index.js').validateEmail
 const sendActivationEmail = require('./email').sendActivationEmail
 const sequelize = require('../models/sequelize').sequelize
+const { Op } = require('sequelize')
 const crypto = require('crypto')
+const moment = require('moment')
 
 module.exports.changeEmail = function (req, res) {
     const userId = req.user.id
@@ -16,8 +18,8 @@ module.exports.changeEmail = function (req, res) {
         return
     }
 
-    if(!validateEmail(email)) {
-        sendJSONresponse(res,422,{ message: 'Ingresa un email válido'})
+    if (!validateEmail(email)) {
+        sendJSONresponse(res, 422, { message: 'Ingresa un email válido' })
         return
     }
 
@@ -47,26 +49,46 @@ module.exports.changeEmail = function (req, res) {
                             sendJSONresponse(res, 404, { message: 'El email ya se encuentra registrado' })
                             return
                         }
-                        // create auth request
-                        const hash = crypto.randomBytes(16).toString('hex')
-                        const url = 'https://blits.net/api/auth/email/activate/' + hash
-                        return AuthRequest.create({
-                            userId,
-                            action: 'email-auth',
-                            code: hash,
-                            data: email,
-                            used: '0'
-                        }, { transaction: t })
-                            .then((authRequest) => {
-                                if (!authRequest) {
-                                    sendJSONresponse(res, 404, { message: 'An error occurred while saving email' })
+                        // limit auth requests
+                        return AuthRequest.findOne({
+                            where: {
+                                userId,
+                                action: 'email-auth',
+                                used: 0,
+                                createdAt: {
+                                    [Op.gte]: moment().subtract(2,'minutes')
+                                }
+                            },
+                            transaction: t
+                        })
+                            .then((pastRequest) => {                                
+                                // only allow requests every 2 minutes                                
+                                if (pastRequest) {
+                                    sendJSONresponse(res, 404, { message: 'Revisa tu email para activar la cuenta o espera 2 min para solicitar la verificación nuevamente' })
                                     return
                                 }
-                                // send email
-                                sendActivationEmail({ url: url, email: email })
-                                // send response
-                                sendJSONresponse(res, 200, { status: 'OK', message: 'Check your email to verify your account' })
-                                return
+                                
+                                // create auth request
+                                const hash = crypto.randomBytes(16).toString('hex')
+                                const url = 'https://blits.net/api/auth/email/activate/' + hash
+                                return AuthRequest.create({
+                                    userId,
+                                    action: 'email-auth',
+                                    code: hash,
+                                    data: email,
+                                    used: '0'
+                                }, { transaction: t })
+                                    .then((authRequest) => {
+                                        if (!authRequest) {
+                                            sendJSONresponse(res, 404, { message: 'An error occurred while saving email' })
+                                            return
+                                        }
+                                        // send email
+                                        sendActivationEmail({ url: url, email: email })
+                                        // send response
+                                        sendJSONresponse(res, 200, { status: 'OK', message: 'Revisa tu email para verificar la cuenta' })
+                                        return
+                                    })
                             })
                     })
             })
