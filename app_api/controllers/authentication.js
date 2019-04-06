@@ -43,7 +43,9 @@ module.exports.activateEmail = (req, res) => {
             authRequest.used = 1
             return authRequest.save({transaction: t})
             .then(() => {
+                // set emailk
                 // emailVerified =1
+                authRequest.user.email = authRequest.data
                 authRequest.user.emailVerified = 1
                 return authRequest.user.save({transaction: t})
                 .then(() => {

@@ -2,6 +2,7 @@ const User = require('../models/sequelize').User
 const Admin = require('../models/sequelize').Admin
 const AuthRequest = require('../models/sequelize').AuthRequest
 const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
+const validateEmail = require('../../utils/index.js').validateEmail
 const sendActivationEmail = require('./email').sendActivationEmail
 const sequelize = require('../models/sequelize').sequelize
 const crypto = require('crypto')
@@ -14,7 +15,12 @@ module.exports.changeEmail = function (req, res) {
         sendJSONresponse(res, 422, { message: 'Missing required arguments' })
         return
     }
-    
+
+    if(!validateEmail(email)) {
+        sendJSONresponse(res,422,{ message: 'Ingresa un email válido'})
+        return
+    }
+
     sequelize.transaction((t) => {
         return User.findOne({
             where: {
@@ -38,32 +44,29 @@ module.exports.changeEmail = function (req, res) {
                 })
                     .then((userEmail) => {
                         if (userEmail) {
-                            sendJSONresponse(res, 404, { message: 'El email ya se encutra registrado' })
+                            sendJSONresponse(res, 404, { message: 'El email ya se encuentra registrado' })
                             return
                         }
-                        user.email = email
-                        return user.save({ transaction: t })
-                            .then(() => {
-                                // create auth request
-                                const hash = crypto.randomBytes(16).toString('hex')
-                                const url = 'https://blits.net/api/auth/email/activate/' + hash
-                                return AuthRequest.create({
-                                    userId,
-                                    action: 'email-auth',
-                                    code: hash,
-                                    used: '0'
-                                }, { transaction: t })
-                                    .then((authRequest) => {
-                                        if(!authRequest) {
-                                            sendJSONresponse(res,404,{message:'An error occurred while saving email'})
-                                            return
-                                        }
-                                        // send email
-                                        sendActivationEmail({ url: url, email: email })
-                                        // send response
-                                        sendJSONresponse(res, 200, { status: 'OK', message: 'Check your email to verify your account' })
-                                        return
-                                    })
+                        // create auth request
+                        const hash = crypto.randomBytes(16).toString('hex')
+                        const url = 'https://blits.net/api/auth/email/activate/' + hash
+                        return AuthRequest.create({
+                            userId,
+                            action: 'email-auth',
+                            code: hash,
+                            data: email,
+                            used: '0'
+                        }, { transaction: t })
+                            .then((authRequest) => {
+                                if (!authRequest) {
+                                    sendJSONresponse(res, 404, { message: 'An error occurred while saving email' })
+                                    return
+                                }
+                                // send email
+                                sendActivationEmail({ url: url, email: email })
+                                // send response
+                                sendJSONresponse(res, 200, { status: 'OK', message: 'Check your email to verify your account' })
+                                return
                             })
                     })
             })
