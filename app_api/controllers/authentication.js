@@ -7,11 +7,58 @@ const sendJSONresponse = require('../../utils').sendJSONresponse
 const Nexmo = require('nexmo')
 const sms = new Nexmo({
     apiKey: process.env.NEXMO_API_KEY,
-    apiSecret: process.env.NEXMO_API_SECRET    
+    apiSecret: process.env.NEXMO_API_SECRET
 })
 const { Op } = require('sequelize')
 const crypto = require('crypto')
 const validator = require('email-validator')
+
+module.exports.activateEmail = (req, res) => {
+    const hash = req.params.hash
+
+    if (!hash) {
+        sendJSONresponse(res, 422, { message: 'Missing required parameter' })
+        return
+    }
+
+    sequelize.transaction((t) => {
+        return AuthRequest.findOne({
+            where: {
+                code: hash,
+                used: 0,
+            },
+            include: [
+                {
+                    model: User
+                }
+            ],
+            transaction: t
+        })
+        .then((authRequest) => {
+            if(!authRequest) {
+                sendJSONresponse(res,200,{message:'El link de activación ya fue usado'})
+                return
+            }
+            // mark authRequest as used
+            authRequest.used = 1
+            return authRequest.save({transaction: t})
+            .then(() => {
+                // emailVerified =1
+                authRequest.user.emailVerified = 1
+                return authRequest.user.save({transaction: t})
+                .then(() => {
+                    sendJSONresponse(res,200,{message:'Email verificado correctamente'})
+                    return
+                })
+            })
+        })
+    })
+    .catch((err) => {
+        console.log(err)
+        sendJSONresponse(res,404,{message:'An error occurred while verifying email'})
+        return
+    })
+}
 
 module.exports.emailSignup = (req, res) => {
     const email = req.body.email
@@ -22,8 +69,8 @@ module.exports.emailSignup = (req, res) => {
         return
     }
 
-    if(!validator.validate(email)) {
-        sendJSONresponse(res,404,{message: 'Ingresa un email válido'})
+    if (!validator.validate(email)) {
+        sendJSONresponse(res, 404, { message: 'Ingresa un email válido' })
         return
     }
 

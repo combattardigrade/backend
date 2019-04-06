@@ -18,18 +18,19 @@ const rideController = require('../controllers/ride')
 const testController = require('../controllers/test')
 
 // authentication
-router.post('/auth/phone',authenticationController.phone)
+router.post('/auth/phone', authenticationController.phone)
 // resend code
-router.post('/auth/phone/resendCode',authenticationController.resendPhoneCode)
+router.post('/auth/phone/resendCode', authenticationController.resendPhoneCode)
 // verify code
-router.post('/auth/phone/confirmCode',authenticationController.confirmCode)
+router.post('/auth/phone/confirmCode', authenticationController.confirmCode)
 // email auth
-router.post('/auth/email/signup',authenticationController.emailSignup)
-router.post('/auth/email/login',authenticationController.emailLogin)
+router.post('/auth/email/signup', authenticationController.emailSignup)
+router.post('/auth/email/login', authenticationController.emailLogin)
+router.get('/auth/email/activate/:hash', authenticationController.activateEmail)
 
 // user 
 router.post('/user/changeName', auth, userController.changeName)
-
+router.post('/user/changeEmail', auth, userController.changeEmail)
 
 // scooters
 router.post('/scooters/getActivationData', auth, scooterController.getActivationData)
