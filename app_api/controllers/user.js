@@ -8,6 +8,126 @@ const sequelize = require('../models/sequelize').sequelize
 const { Op } = require('sequelize')
 const crypto = require('crypto')
 const moment = require('moment')
+const Nexmo = require('nexmo')
+const sms = new Nexmo({
+    apiKey: process.env.NEXMO_API_KEY,
+    apiSecret: process.env.NEXMO_API_SECRET
+})
+
+
+module.exports.getData = function(req,res) {
+    const userId = req.user.id
+    
+    if (!userId) {
+        sendJSONresponse(res, 422, { message: 'Missing required arguments' })
+        return
+    }
+
+    sequelize.transaction((t) => {
+        return User.findOne({
+            where: {
+                id: userId
+            },
+            attributes: ['email', 'phone', 'countryCode', 'firstName', 'lastName', 'createdAt']
+        })
+            .then((user) => {
+                if(!user) {
+                    sendJSONresponse(res,404,{message:'User not found'})
+                    return
+                }
+
+                sendJSONresponse(res,200,user)
+                return
+            })
+    })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res, 404, { message: 'An error occured while trying to change name' })
+            return        
+        })
+}
+
+module.exports.changePhone = function (req, res) {
+    const userId = req.user.id
+    const phone = req.body.phone
+    const countryCode = req.body.countryCode
+
+    if (!userId || !phone || !countryCode) {
+        sendJSONresponse(res, 422, { message: 'Missing required arguments' })
+        return
+    }
+
+    sequelize.transaction((t) => {
+        return User.findOne({
+            where: {
+                id: userId
+            },
+            transaction: t
+        })
+            .then((user) => {
+                if (!user) {
+                    sendJSONresponse(res, 404, { message: 'User does not exist' })
+                    return
+                }
+
+                // check if the phone number is already in use
+                return User.findOne({
+                    where: {
+                        phone: phone
+                    },
+                    transaction: t
+                })
+                    .then((userPhone) => {
+                        if (userPhone) {
+                            sendJSONresponse(res, 404, { message: 'El número telefónico ya se encuentra registrado' })
+                            return
+                        }
+                        // limit auth requests
+                        return AuthRequest.findOne({
+                            where: {
+                                userId,
+                                action: 'sms-auth',
+                                used: 0,
+                                createdAt: {
+                                    [Op.gte]: moment().subtract(1, 'minutes')
+                                }
+                            },
+                            transaction: t
+                        })
+                            .then((pastRequest) => {
+                                // only allow requests every 2 minutes                                
+                                if (pastRequest) {
+                                    sendJSONresponse(res, 404, { message: 'Espera 2 min para solicitar el código de verificación nuevamente' })
+                                    return
+                                }
+
+                                const code = Math.floor(100000 + Math.random() * 900000)                                
+                                const data = countryCode + '-' + phone
+                                // create authRequest
+                                return AuthRequest.create({
+                                    userId,
+                                    action: 'sms-auth',
+                                    used: 0,
+                                    code: code,
+                                    data: data
+                                }, { transaction: t })
+                                    .then((newRequest) => {
+                                        // send code through sms
+                                        sms.message.sendSms('Blits', countryCode + phone, 'Tu codigo para Blits es: ' + code)
+                                        // send resonse
+                                        sendJSONresponse(res, 200, { message: 'Ingresa el código de verificación para continuar' })
+                                        return
+                                    })
+                            })
+                    })
+            })
+    })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res, 404, { message: 'An error occured while trying to change name' })
+            return
+        })
+}
 
 module.exports.changeEmail = function (req, res) {
     const userId = req.user.id
@@ -56,18 +176,18 @@ module.exports.changeEmail = function (req, res) {
                                 action: 'email-auth',
                                 used: 0,
                                 createdAt: {
-                                    [Op.gte]: moment().subtract(2,'minutes')
+                                    [Op.gte]: moment().subtract(2, 'minutes')
                                 }
                             },
                             transaction: t
                         })
-                            .then((pastRequest) => {                                
+                            .then((pastRequest) => {
                                 // only allow requests every 2 minutes                                
                                 if (pastRequest) {
                                     sendJSONresponse(res, 404, { message: 'Revisa tu email para activar la cuenta o espera 2 min para solicitar la verificación nuevamente' })
                                     return
                                 }
-                                
+
                                 // create auth request
                                 const hash = crypto.randomBytes(16).toString('hex')
                                 const url = 'https://blits.net/api/auth/email/activate/' + hash
@@ -105,6 +225,7 @@ module.exports.changeName = function (req, res) {
     const firstName = req.body.firstName
     const lastName = req.body.lastName
 
+    console.log(lastName)
     if (!userId || !firstName || !lastName) {
         sendJSONresponse(res, 422, { message: 'Missing required arguments' })
         return

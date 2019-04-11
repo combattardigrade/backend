@@ -21,16 +21,19 @@ const testController = require('../controllers/test')
 router.post('/auth/phone', authenticationController.phone)
 // resend code
 router.post('/auth/phone/resendCode', authenticationController.resendPhoneCode)
-// verify code
+// verify sms code
 router.post('/auth/phone/confirmCode', authenticationController.confirmCode)
+router.post('/auth/phone/confirmCodePhoneChange', auth, authenticationController.confirmCodePhoneChange)
 // email auth
 router.post('/auth/email/signup', authenticationController.emailSignup)
 router.post('/auth/email/login', authenticationController.emailLogin)
 router.get('/auth/email/activate/:hash', authenticationController.activateEmail)
 
 // user 
+router.get('/user/data', auth, userController.getData)
 router.post('/user/changeName', auth, userController.changeName)
 router.post('/user/changeEmail', auth, userController.changeEmail)
+router.post('/user/changePhone', auth, userController.changePhone)
 
 // scooters
 router.post('/scooters/getActivationData', auth, scooterController.getActivationData)

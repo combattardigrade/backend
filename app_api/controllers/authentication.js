@@ -34,32 +34,32 @@ module.exports.activateEmail = (req, res) => {
             ],
             transaction: t
         })
-        .then((authRequest) => {
-            if(!authRequest) {
-                sendJSONresponse(res,200,{message:'El link de activación ya fue usado'})
-                return
-            }
-            // mark authRequest as used
-            authRequest.used = 1
-            return authRequest.save({transaction: t})
-            .then(() => {
-                // set emailk
-                // emailVerified =1
-                authRequest.user.email = authRequest.data
-                authRequest.user.emailVerified = 1
-                return authRequest.user.save({transaction: t})
-                .then(() => {
-                    sendJSONresponse(res,200,{message:'Email verificado correctamente'})
+            .then((authRequest) => {
+                if (!authRequest) {
+                    sendJSONresponse(res, 200, { message: 'El link de activación ya fue usado' })
                     return
-                })
+                }
+                // mark authRequest as used
+                authRequest.used = 1
+                return authRequest.save({ transaction: t })
+                    .then(() => {
+                        // set emailk
+                        // emailVerified =1
+                        authRequest.user.email = authRequest.data
+                        authRequest.user.emailVerified = 1
+                        return authRequest.user.save({ transaction: t })
+                            .then(() => {
+                                sendJSONresponse(res, 200, { message: 'Email verificado correctamente' })
+                                return
+                            })
+                    })
             })
+    })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res, 404, { message: 'An error occurred while verifying email' })
+            return
         })
-    })
-    .catch((err) => {
-        console.log(err)
-        sendJSONresponse(res,404,{message:'An error occurred while verifying email'})
-        return
-    })
 }
 
 module.exports.emailSignup = (req, res) => {
@@ -205,6 +205,69 @@ module.exports.confirmCode = (req, res) => {
 
 }
 
+module.exports.confirmCodePhoneChange = (req, res) => {
+    const userId = req.user.id
+    const code = req.body.code
+   
+    if (!userId || !code) {
+        sendJSONresponse(res, 422, { message: 'Missing required parameter' })
+        return
+    }
+
+    sequelize.transaction((t) => {
+        return User.findOne({
+            where: {
+                id: userId
+            },
+            transaction: t
+        })
+            .then((user) => {
+                return AuthRequest.findOne({
+                    where: {
+                        userId,
+                        code,
+                        used: 0,
+                        createdAt: {
+                            [Op.gte]: moment().subtract(10, 'minutes')
+                        }
+                    },
+                    transaction: t
+                })
+                    .then((request) => {
+                        if (!request) {
+                            sendJSONresponse(res, 404, { message: 'Invalid request' })
+                            return
+                        }
+                        // set auth request as used
+                        request.used = 1
+                        return request.save({ transaction: t })
+                            .then(() => {
+                                // change phone and country code
+                                var data = request.data
+                                data = data.split('-')
+                                const countryCode = data[0]
+                                const phone = data[1]
+                                user.phone = phone
+                                user.countryCode = countryCode
+                                // update account level
+                                user.phoneVerified = 1
+                                return user.save({ transaction: t })
+                                    .then(() => {
+                                        sendJSONresponse(res, 200, { message: 'Número telefónico cambiado correctamente' })
+                                        return
+                                    })
+                            })
+                    })
+            })
+    })
+    .catch((err) => {
+        console.log(err)
+        sendJSONresponse(res, 404, { message: 'An error occured while trying to change name' })
+        return
+    })
+
+}
+
 module.exports.resendPhoneCode = (req, res) => {
     const phone = req.body.phone
 
@@ -255,20 +318,7 @@ module.exports.resendPhoneCode = (req, res) => {
             console.log(err)
         })
 
-    AuthRequest.findOne({
-        where: {
-            userId: user.id,
-            action: 'signup',
-            used: 0
-        },
-        defaults: {
-            userId: user.id,
-            action: 'signup',
-            code: code,
-            used: 0
-        },
-        transaction: t
-    })
+    
 }
 
 module.exports.phone = (req, res) => {
