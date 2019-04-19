@@ -8,7 +8,8 @@ const ScooterLocationModel = require('./scooterLocation')
 const UserLocationModel = require('./userLocation')
 const PriceModel = require('./price')
 const TransactionModel = require('./transaction')
-const RideModel = require('./Ride')
+const RideModel = require('./ride')
+const CardModel = require('./card')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -35,6 +36,7 @@ const UserLocation = UserLocationModel(sequelize,Sequelize)
 const Price = PriceModel(sequelize,Sequelize)
 const Transaction = TransactionModel(sequelize,Sequelize)
 const Ride = RideModel(sequelize,Sequelize)
+const Card = CardModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
@@ -50,6 +52,8 @@ User.hasMany(Ride)
 Ride.belongsTo(User)
 Ride.hasMany(Transaction)
 Transaction.belongsTo(Ride)
+User.hasMany(Card)
+Card.belongsTo(User)
 
 
 sequelize.sync({force: false})
@@ -68,5 +72,6 @@ module.exports = {
     Price,
     Ride,
     Transaction,
+    Card,
     sequelize
 }

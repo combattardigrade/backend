@@ -14,6 +14,7 @@ const scooterLocationController = require('../controllers/scooterLocation')
 const balanceController = require('../controllers/balance')
 const priceController = require('../controllers/price')
 const rideController = require('../controllers/ride')
+const paymentController = require('../controllers/payment')
 
 const testController = require('../controllers/test')
 
@@ -34,6 +35,9 @@ router.get('/user/data', auth, userController.getData)
 router.post('/user/changeName', auth, userController.changeName)
 router.post('/user/changeEmail', auth, userController.changeEmail)
 router.post('/user/changePhone', auth, userController.changePhone)
+
+// payment methods
+router.post('/payment/saveCard', auth, paymentController.saveCard)
 
 // scooters
 router.post('/scooters/getActivationData', auth, scooterController.getActivationData)
