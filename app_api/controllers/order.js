@@ -1,9 +1,41 @@
 const User = require('../models/sequelize').User
 const Order = require('../models/sequelize').Order
 const Admin = require('../models/sequelize').Admin
-const sendJSONresponse = require('../../utils/index.js')
+const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const sequelize = require('../models/sequelize').sequelize
 const { Op } = require('sequelize');
+
+module.exports.createOrder = function(req,res) {
+    const userId = req.user.id
+    const productId = req.body.productId
+
+    if(!userId || !productId) {
+        sendJSONresponse(res,422,{message:'Missing required arguments'})
+        return
+    }
+
+    sequelize.transaction(async (t) => {
+        // check if user exists
+        let user = await User.findOne({where: {id: userId}, transaction: t})        
+        if(!user) {
+            sendJSONresponse(res,404,{message:'User does not exist'})
+            return
+        }
+
+        // check if product exists
+        let product = await Product.findOne({where: {id: productId}, transaction: t})
+
+        sendJSONresponse(res,200,user)
+        return
+    })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res,404,{message: 'An error occured while creating order'})
+            return
+        })
+    
+}
+
 
 module.exports.getAllByPage = function (req, res) {
     const userId = req.user.id

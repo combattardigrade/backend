@@ -10,6 +10,8 @@ const PriceModel = require('./price')
 const TransactionModel = require('./transaction')
 const RideModel = require('./ride')
 const CardModel = require('./card')
+const OrderModel = require('./order')
+const ProductModel = require('./product')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -37,6 +39,8 @@ const Price = PriceModel(sequelize,Sequelize)
 const Transaction = TransactionModel(sequelize,Sequelize)
 const Ride = RideModel(sequelize,Sequelize)
 const Card = CardModel(sequelize,Sequelize)
+const Order = OrderModel(sequelize,Sequelize)
+const Product = ProductModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
@@ -54,6 +58,9 @@ Ride.hasMany(Transaction)
 Transaction.belongsTo(Ride)
 User.hasMany(Card)
 Card.belongsTo(User)
+User.hasMany(Order)
+Order.belongsTo(User)
+Order.hasOne(Product)
 
 
 sequelize.sync({force: false})
@@ -73,5 +80,7 @@ module.exports = {
     Ride,
     Transaction,
     Card,
+    Order,
+    Product,
     sequelize
 }

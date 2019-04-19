@@ -1,5 +1,6 @@
 const User = require('../models/sequelize').User
 const Admin = require('../models/sequelize').Admin
+const Balance = require('../models/sequelize').Balance
 const AuthRequest = require('../models/sequelize').AuthRequest
 const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const validateEmail = require('../../utils/index.js').validateEmail
@@ -28,7 +29,17 @@ module.exports.getData = function(req,res) {
             where: {
                 id: userId
             },
-            attributes: ['email', 'phone', 'countryCode', 'firstName', 'lastName', 'createdAt']
+            attributes: ['email', 'phone', 'countryCode', 'firstName', 'lastName', 'country', 'currency','createdAt'],
+            include: [
+                {
+                    model: Balance,
+                    where: {
+                        currency: {[Op.col]: 'User.currency'}
+                    },
+                    attributes: ['id','amount','currency','updatedAt', 'createdAt']
+                }
+            ],
+            transaction: t
         })
             .then((user) => {
                 if(!user) {

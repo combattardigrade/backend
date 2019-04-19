@@ -1,6 +1,6 @@
 const User = require('../models/sequelize').User
 const Balance = require('../models/sequelize').Balance
-const sendJSONresponse = require('../../utils/index.js')
+const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const sequelize = require('../models/sequelize').sequelize
 const { Op } = require('sequelize');
 const crypto = require('crypto')

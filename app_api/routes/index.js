@@ -15,6 +15,7 @@ const balanceController = require('../controllers/balance')
 const priceController = require('../controllers/price')
 const rideController = require('../controllers/ride')
 const paymentController = require('../controllers/payment')
+const productController = require('../controllers/product')
 
 const testController = require('../controllers/test')
 
@@ -38,6 +39,12 @@ router.post('/user/changePhone', auth, userController.changePhone)
 
 // payment methods
 router.post('/payment/saveCard', auth, paymentController.saveCard)
+
+// orders
+router.post('/order/create', auth, orderController.createOrder)
+
+// products
+router.get('/products/:currency', auth, productController.getAll)
 
 // scooters
 router.post('/scooters/getActivationData', auth, scooterController.getActivationData)
@@ -72,6 +79,8 @@ router.get('/admin/users/countAll', auth, userController.countAll)
 router.get('/admin/users/getAllByPage/:page', auth, userController.getAllByPage)
 // admin => orders
 router.get('/admin/orders/count/:status', auth, orderController.countByStatus);
+// admin => products
+router.post('/admin/product/create', auth, productController.createProduct)
 
 router.get('/test/sms', testController.sendSms)
 router.get('/test', testController.test)
