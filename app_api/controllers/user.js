@@ -30,15 +30,15 @@ module.exports.getData = function(req,res) {
                 id: userId
             },
             attributes: ['email', 'phone', 'countryCode', 'firstName', 'lastName', 'country', 'currency','createdAt'],
-            include: [
+            /*include: [
                 {
                     model: Balance,
                     where: {
-                        currency: {[Op.col]: 'User.currency'}
+                        currency: sequelize.literal('User.currency')
                     },
                     attributes: ['id','amount','currency','updatedAt', 'createdAt']
                 }
-            ],
+            ],*/
             transaction: t
         })
             .then((user) => {
@@ -46,14 +46,27 @@ module.exports.getData = function(req,res) {
                     sendJSONresponse(res,404,{message:'User not found'})
                     return
                 }
-
-                sendJSONresponse(res,200,user)
-                return
+                return Balance.findOne({
+                    where: {
+                        currency: user.currency
+                    },
+                    attributes: ['id','amount','currency','updatedAt', 'createdAt'],
+                    transaction:  t
+                })
+                    .then((balance) => {
+                        let data = JSON.parse(JSON.stringify(user))
+                        let balances = JSON.parse(JSON.stringify(balance))
+                        data.balances = []
+                        data.balances.push(balance)
+                        sendJSONresponse(res,200,data)
+                        return
+                    })
+                
             })
     })
         .catch((err) => {
             console.log(err)
-            sendJSONresponse(res, 404, { message: 'An error occured while trying to change name' })
+            sendJSONresponse(res, 404, { message: 'An error occured while trying to fetch user data' })
             return        
         })
 }

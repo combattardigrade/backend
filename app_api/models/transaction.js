@@ -6,7 +6,7 @@ module.exports = (sequelize,DataTypes) => {
         },
         rideId: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: true
         },
         operation: {
             type: DataTypes.STRING,
@@ -31,6 +31,10 @@ module.exports = (sequelize,DataTypes) => {
             type: DataTypes.DECIMAL(16,8),
             allowNull: true,
             defaultValue: 0 
+        },
+        orderId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,            
         }              
     })
 }

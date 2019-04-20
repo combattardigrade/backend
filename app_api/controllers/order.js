@@ -23,7 +23,7 @@ module.exports.mpNotifications = function(req,res) {
         sendJSONresponse(res,404,{message:'Missing required params'})
         return
     }
-
+    
     if(topic == 'payment') {
         processPayment(id)
     } else {
@@ -47,6 +47,8 @@ module.exports.mpNotifications = function(req,res) {
             url: 'https://api.mercadopago.com/v1/payments/' + paymentId + '?access_token=' + MP_ACCESS_TOKEN,
 			method: 'GET',
         }
+       
+        console.log(paymentId)
 
         request(options, function(err, response, body) {
             payment = JSON.parse(body)
@@ -63,13 +65,14 @@ module.exports.mpNotifications = function(req,res) {
                         // and set order as complete
 
                         var externalRef = payment.external_reference
-                        externalRef = externalref.split('-')
+                        externalRef = externalRef.split('-')
                         externalRef = externalRef[1]
 
                         sequelize.transaction(async (t) => {
                             let order = await Order.findOne({
                                 where: {
-                                    id: externalRef
+                                    id: externalRef,
+                                    status: {$not: 'approved'}
                                 },
                                 include: [
                                     {
@@ -78,6 +81,13 @@ module.exports.mpNotifications = function(req,res) {
                                 ],
                                 transaction: t
                             })
+
+                            // order already approved or deleted
+                            if(!order) {
+                                console.log('order already approved')
+                                res.sendStatus(200)
+                                return
+                            }
 
                             // update order status
                             order.status = payment.status
@@ -89,8 +99,9 @@ module.exports.mpNotifications = function(req,res) {
                                 operation: 'deposit',
                                 total: order.total,
                                 currency: order.currency,
-                                amount: (total * 0.84),
-                                tax: (total * 0.16)
+                                amount: (order.total * 0.84),
+                                tax: (order.total * 0.16),
+                                orderId: order.id
                             }, { transaction: t })
                             
                             // find balance
@@ -102,9 +113,15 @@ module.exports.mpNotifications = function(req,res) {
                                 transaction: t
                             })
                             // update balance
-                            balance.amount = BigNumber(balance.amount).plus(BigNumber(order.total))
+                            
+                            let newBalance = BigNumber(balance.amount)
+                            
+                            let total = BigNumber(order.total)
+                            
+                            balance.amount = parseFloat(newBalance.plus(total))
+                            
                             await balance.save({transaction: t})
-
+                            
                             res.sendStatus(200)
                             return
                         })
@@ -115,6 +132,11 @@ module.exports.mpNotifications = function(req,res) {
                     }
                 })
             } else {
+                // check if payment not found
+                if(payment.status === 404) {
+                    res.sendStatus(200)
+                    return
+                }
                 // update order status
                 var externalRef = payment.external_reference
                 externalRef = externalRef.split('-')
@@ -179,7 +201,7 @@ module.exports.createOrder = function (req, res) {
             sendJSONresponse(res, 404, { message: 'Product not found' })
             return
         }
-
+        console.log(user.email)
         // create new order
         let order = await Order.create({
             userId,
@@ -208,6 +230,7 @@ module.exports.createOrder = function (req, res) {
                 },
                 unitPrice: order.unitPrice,
                 quantity: 1,
+                currency_id: order.currency,
                 createdAt: order.createdAt,
                 expirationDate: expirationDate
             })
@@ -243,6 +266,7 @@ function createMercadoPagoPreference(order) {
                 id: order.product.id,
                 title: order.product.title,
                 quantity: parseFloat(order.quantity),
+                currency_id: order.currency_id,
                 unit_price: parseFloat(order.unitPrice),
                 description: order.product.description
             },
