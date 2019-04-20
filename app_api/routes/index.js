@@ -42,6 +42,7 @@ router.post('/payment/saveCard', auth, paymentController.saveCard)
 
 // orders
 router.post('/order/create', auth, orderController.createOrder)
+router.post('/order/mp/notifications', orderController.mpNotifications)
 
 // products
 router.get('/products/:currency', auth, productController.getAll)

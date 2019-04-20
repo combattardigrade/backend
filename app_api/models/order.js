@@ -35,7 +35,11 @@ module.exports = (sequelize,DataTypes) => {
         paymentMethod: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: 'Mercadopago'
+            defaultValue: 'mercadopago'
+        },
+        hash: {
+            type: DataTypes.STRING,
+            allowNull: false,            
         },
         status: {
             type: DataTypes.STRING,
