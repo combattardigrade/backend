@@ -13,7 +13,7 @@ module.exports = (sequelize,DataTypes) => {
             allowNull: false,
         },
         amount: {
-            type: DataTypes.STRING,
+            type: DataTypes.DECIMAL(16,8),
             allowNull: true,
             defaultValue: 0
         },

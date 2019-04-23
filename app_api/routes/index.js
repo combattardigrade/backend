@@ -51,6 +51,7 @@ router.get('/products/:currency', auth, productController.getAll)
 // promo code
 router.get('/promoCode', auth, promoCodeController.getCode)
 router.get('/promos/history', auth, promoCodeController.getHistory)
+router.post('/promos/redeem', auth, promoCodeController.redeemCode)
 
 // scooters
 router.post('/scooters/getActivationData', auth, scooterController.getActivationData)
