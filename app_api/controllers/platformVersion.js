@@ -69,3 +69,20 @@ module.exports.updateVersion = function(req,res) {
 module.exports.deleteVersion = function(req,res) {
 
 }
+
+module.exports.checkiOSReview = function(req,res) {
+    PlatformVersion.findOne({
+        where: {
+            platform: 'ios-review'
+        }
+    })
+        .then((version) => {
+            if(!version || version.forceUpdate === 0) {
+                sendJSONresponse(res,200,{message:'inactive'})
+                return
+            }
+
+            sendJSONresponse(res,200,{message:'active'})
+            return
+        })
+}

@@ -96,6 +96,7 @@ router.post('/admin/version', auth, platformVersionController.createVersion)
 router.get('/admin/version/:platform', platformVersionController.getVersion)
 router.put('/admin/version', auth, platformVersionController.updateVersion)
 router.delete('/admin/version/:platform', auth, platformVersionController.deleteVersion)
+router.get('/admin/appstore', platformVersionController.checkiOSReview)
 
 router.get('/test/sms', testController.sendSms)
 router.get('/test', testController.test)
