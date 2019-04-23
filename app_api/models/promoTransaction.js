@@ -1,12 +1,16 @@
 module.exports = (sequelize,DataTypes) => {
-    return sequelize.define('promoCode', {
-        userId: {
+    return sequelize.define('promoTransaction', {
+        redeemerUserId: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+        },
+        referrerUserId: {
+            type: DataTypes.STRING,
+            allowNull: true
         },
         code: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
         amount: {
             type: DataTypes.STRING,
@@ -23,10 +27,10 @@ module.exports = (sequelize,DataTypes) => {
             allowNull: true,
             defaultValue: 'invite_friends'
         },
-        status: {
+        operation: {
             type: DataTypes.STRING,
-            allowNull: true,
-            defaultValue: 'active'
-        }
+            allowNull: true,            
+        },
+        
     })
 }

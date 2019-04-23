@@ -13,6 +13,7 @@ const CardModel = require('./card')
 const OrderModel = require('./order')
 const ProductModel = require('./product')
 const PromoCodeModel = require('./promoCode')
+const PromoTransactionModel = require('./promoTransaction')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -43,6 +44,7 @@ const Card = CardModel(sequelize,Sequelize)
 const Order = OrderModel(sequelize,Sequelize)
 const Product = ProductModel(sequelize,Sequelize)
 const PromoCode = PromoCodeModel(sequelize,Sequelize)
+const PromoTransaction = PromoTransactionModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
@@ -66,6 +68,7 @@ Order.hasOne(Product)
 User.hasOne(PromoCode)
 PromoCode.belongsTo(User)
 
+
 sequelize.sync({force: false})
 .then(() => {
     console.log('Database & tables created')
@@ -86,5 +89,6 @@ module.exports = {
     Order,
     Product,
     PromoCode,
+    PromoTransaction,
     sequelize
 }
