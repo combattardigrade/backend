@@ -1,5 +1,5 @@
 module.exports = (sequelize,DataTypes) => {
-    return sequelize.define('platformversion'),{
+    return sequelize.define('platformVersion',{
         platform: {
             type: DataTypes.STRING,
             allowNull: false
@@ -13,5 +13,5 @@ module.exports = (sequelize,DataTypes) => {
             allowNull: false,
             defaultValue: 0
         }
-    }
+    })
 }

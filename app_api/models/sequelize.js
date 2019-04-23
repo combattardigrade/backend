@@ -14,6 +14,7 @@ const OrderModel = require('./order')
 const ProductModel = require('./product')
 const PromoCodeModel = require('./promoCode')
 const PromoTransactionModel = require('./promoTransaction')
+const PlatformVersionModel = require('./platformVersion')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -45,6 +46,7 @@ const Order = OrderModel(sequelize,Sequelize)
 const Product = ProductModel(sequelize,Sequelize)
 const PromoCode = PromoCodeModel(sequelize,Sequelize)
 const PromoTransaction = PromoTransactionModel(sequelize,Sequelize)
+const PlatformVersion = PlatformVersionModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
@@ -90,5 +92,6 @@ module.exports = {
     Product,
     PromoCode,
     PromoTransaction,
+    PlatformVersion,
     sequelize
 }

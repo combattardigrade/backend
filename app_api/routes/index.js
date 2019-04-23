@@ -18,6 +18,7 @@ const paymentController = require('../controllers/payment')
 const productController = require('../controllers/product')
 const promoCodeController = require('../controllers/promoCode')
 const userLocationController = require('../controllers/userLocation')
+const platformVersionController = require('../controllers/platformVersion')
 
 const testController = require('../controllers/test')
 
@@ -90,6 +91,11 @@ router.get('/admin/users/getAllByPage/:page', auth, userController.getAllByPage)
 router.get('/admin/orders/count/:status', auth, orderController.countByStatus);
 // admin => products
 router.post('/admin/product/create', auth, productController.createProduct)
+// admin => version
+router.post('/admin/version', auth, platformVersionController.createVersion)
+router.get('/admin/version/:platform', platformVersionController.getVersion)
+router.put('/admin/version', auth, platformVersionController.updateVersion)
+router.delete('/admin/version/:platform', auth, platformVersionController.deleteVersion)
 
 router.get('/test/sms', testController.sendSms)
 router.get('/test', testController.test)
