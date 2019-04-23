@@ -17,6 +17,7 @@ const rideController = require('../controllers/ride')
 const paymentController = require('../controllers/payment')
 const productController = require('../controllers/product')
 const promoCodeController = require('../controllers/promoCode')
+const userLocationController = require('../controllers/userLocation')
 
 const testController = require('../controllers/test')
 
@@ -58,6 +59,7 @@ router.post('/scooters/getActivationData', auth, scooterController.getActivation
 //router.get('/scooters/getNearLocation', auth, scooterController.getNearLocation)
 
 // location
+router.post('/locations/user/saveLocation', auth, userLocationController.saveLocation)
 router.post('/locations/scooter/saveScooterLocation', scooterLocationController.saveScooterLocation)
 router.get('/locations/scooter/getScootersNearLocation', auth, scooterLocationController.getScootersNearLocation)
 

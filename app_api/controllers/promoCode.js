@@ -27,7 +27,7 @@ module.exports.redeemCode = function(req,res) {
         
         // check if promo code exists
         if(!promoCode) {
-            sendJSONresponse(res,404,{message:'Promo code not found'})
+            sendJSONresponse(res,404,{message:'Invalid promo code'})
             return
         }
 
