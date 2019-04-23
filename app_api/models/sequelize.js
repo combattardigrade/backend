@@ -12,6 +12,7 @@ const RideModel = require('./ride')
 const CardModel = require('./card')
 const OrderModel = require('./order')
 const ProductModel = require('./product')
+const PromoCodeModel = require('./promoCode')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -41,6 +42,7 @@ const Ride = RideModel(sequelize,Sequelize)
 const Card = CardModel(sequelize,Sequelize)
 const Order = OrderModel(sequelize,Sequelize)
 const Product = ProductModel(sequelize,Sequelize)
+const PromoCode = PromoCodeModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
@@ -61,7 +63,8 @@ Card.belongsTo(User)
 User.hasMany(Order)
 Order.belongsTo(User)
 Order.hasOne(Product)
-
+User.hasOne(PromoCode)
+PromoCode.belongsTo(User)
 
 sequelize.sync({force: false})
 .then(() => {
@@ -82,5 +85,6 @@ module.exports = {
     Card,
     Order,
     Product,
+    PromoCode,
     sequelize
 }

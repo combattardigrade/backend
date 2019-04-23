@@ -16,6 +16,7 @@ const priceController = require('../controllers/price')
 const rideController = require('../controllers/ride')
 const paymentController = require('../controllers/payment')
 const productController = require('../controllers/product')
+const promoCodeController = require('../controllers/promoCode')
 
 const testController = require('../controllers/test')
 
@@ -46,6 +47,9 @@ router.post('/order/mp/notifications', orderController.mpNotifications)
 
 // products
 router.get('/products/:currency', auth, productController.getAll)
+
+// promo code
+router.get('/promoCode', auth, promoCodeController.getCode)
 
 // scooters
 router.post('/scooters/getActivationData', auth, scooterController.getActivationData)

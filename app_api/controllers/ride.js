@@ -45,9 +45,7 @@ module.exports.getRideHistory = function(req,res) {
                 include: [
                     {
                         model: Transaction,
-                        where: {
-                            rideId: {$col: 'Ride.id'}
-                        },
+                        
                         attributes: [       
                             'id', 'total'
                         ],
