@@ -1,6 +1,7 @@
 const request = require('request')
 const rp = require('request-promise')
 const crypto = require('crypto')
+const moment = require('moment')
 const API_HOST = process.env.API_HOST
 const SERVER_HOST = process.env.SERVER_HOST
 
@@ -35,7 +36,7 @@ module.exports.login = function(req,res) {
     }
 
     request(options, function(err, response, body) {
-        
+        console.log(body)
         const token = body.token
         if(token) {            
             request({
@@ -165,7 +166,7 @@ module.exports.createNewScooter = function(req,res){
     const code = req.body.code
     const batch = req.body.batch
     const hash =  crypto.randomBytes(16).toString('hex')
-    const birthday = req.body.birthday
+    const birthday = moment(req.body.birthday).format()
     const city = req.body.city
     const status = req.body.status
 

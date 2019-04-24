@@ -61,7 +61,7 @@ router.post('/scooters/getActivationData', auth, scooterController.getActivation
 
 // location
 router.post('/locations/user/saveLocation', auth, userLocationController.saveLocation)
-router.post('/locations/scooter/saveScooterLocation', scooterLocationController.saveScooterLocation)
+router.get('/locations/scooter/saveLocation', scooterLocationController.saveScooterLocation)
 router.get('/locations/scooter/getScootersNearLocation', auth, scooterLocationController.getScootersNearLocation)
 
 // price

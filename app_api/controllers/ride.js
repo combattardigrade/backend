@@ -12,7 +12,7 @@ const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const printMoney = require('../../utils/index.js').printMoney
 const calculateDistance = require('../../utils/distance').calculateDistance
 const moment = require('moment')
-const BigNumber = require('bignumber.js');
+const BigNumber = require('bignumber.js')
 
 
 module.exports.getRideHistory = function(req,res) {
@@ -383,7 +383,7 @@ module.exports.startRide = function (req, res) {
                                                         }, { transaction: t })
                                                             .then((tx) => {
                                                                 // update scooter status
-                                                                scooter.status = 'inUse'
+                                                                scooter.status = 'on_ride'
                                                                 return scooter.save({ transaction: t })
                                                                     .then(() => {
                                                                         sendJSONresponse(res, 200, { message: 'Scooter unlocked' })

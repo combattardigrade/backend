@@ -69,7 +69,7 @@ module.exports.emailSignup = (req, res) => {
     if (!email || !password) {
         sendJSONresponse(res, 422, { message: 'Missing required parameter' })
         return
-    }
+    } 
 
     if (!validator.validate(email)) {
         sendJSONresponse(res, 404, { message: 'Ingresa un email válido' })

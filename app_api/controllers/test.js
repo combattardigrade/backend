@@ -15,15 +15,6 @@ module.exports.sendSms = function (req, res) {
 
 module.exports.test = function (req, res) {
     // crypto.randomBytes(16).toString('hex')
-    console.log(crypto.randomBytes(16).toString('hex'))
-    var hashes = []
-    var i = 1
-    while(i <= 50) {
-        hashes.push(crypto.randomBytes(16).toString('hex'))
-        if(i === 50) {
-            sendJSONresponse(res,200,{hashes})
-            return
-        }
-        i++        
-    }
+    sendJSONresponse(res,200,{message:'test'})
+    return
 }

@@ -35,6 +35,7 @@ passport.use(new localStrategy({
                     }
                 })
                 .then((request) => {
+                    console.log(request)
                     if(request.updatedAt >= moment().subtract(10,'minutes')) {
                         return done(null, false, {message: 'Revisa tu email para activar la cuenta'})                        
                     }

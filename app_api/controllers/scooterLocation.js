@@ -1,10 +1,15 @@
 const Scooter = require('../models/sequelize').Scooter
 const ScooterLocation = require('../models/sequelize').ScooterLocation
+const User = require('../models/sequelize').User
+const Ride = require('../models/sequelize').Ride
+const Balance = require('../models/sequelize').Balance
+const Price = require('../models/sequelize').Price
 const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const sequelize = require('../models/sequelize').sequelize
 const { Op } = require('sequelize');
 const crypto = require('crypto')
 const moment = require('moment')
+const BigNumber = require('bignumber.js')
 
 module.exports.getScootersNearLocation = function (req, res) {
     const userId = req.user.id
@@ -46,44 +51,103 @@ module.exports.getScootersNearLocation = function (req, res) {
 
 
 module.exports.saveScooterLocation = function (req, res) {
-    const scooterHash = req.body.scooterHash
-    const lat = req.body.lat
-    const lng = req.body.lng
+    const scooterCode = req.query.scooterId
+    const lat = req.query.lat
+    const lng = req.query.lng
 
-    if (!scooterHash || !lat || !lng) {
+    if (!scooterCode || !lat || !lng) {
         sendJSONresponse(res, 422, { message: 'Missing arguments' })
         return
     }
-    sequelize.transaction((t) => {
-        return Scooter.findOne({
+    sequelize.transaction(async (t) => {
+        let scooter = await Scooter.findOne({
             where: {
-                hash: scooterHash
+                code: scooterCode
             },
-
             transaction: t
         })
-            .then((scooter) => {
-                let location = {
-                    type: 'Point',
-                    coordinates: [lat, lng]
-                }
-                scooter.lat = lat
-                scooter.lng = lng
-                return scooter.save({ transaction: t })
-                    .then(() => {
-                        return ScooterLocation.create({
-                            scooterId: scooter.id,
-                            lat,
-                            lng,
-                            location,
-                        }, { transaction: t })
-                            .then((location) => {
-                                // set lastLocation
-                                sendJSONresponse(res, 200, { location })
-                                return
-                            })
-                    })
+            
+        let location = {
+            type: 'Point',
+            coordinates: [lat, lng]
+        }
+        scooter.lat = lat
+        scooter.lng = lng
+        
+        await scooter.save({ transaction: t })
+                    
+        let savedLocation = await ScooterLocation.create({
+            scooterId: scooter.id,
+            lat,
+            lng,
+            location,
+        }, { transaction: t })        
+        
+        // check if scooter is on_ride and should continue unlocked
+        if(scooter.status === 'on_ride') {
+            // find ride
+            let ride = await Ride.findOne({
+                where: {
+                    scooterId: scooter.id,
+                    status: 'active'
+                },
+                include: [
+                    {
+                        model: User,
+                        attributes: ['id','currency']
+                    }
+                ],
+                transaction: t
             })
+            
+            // if the ride was not found but scooter in on_ride then lock scooter
+            if(!ride) {
+                res.status(200)
+                res.send('LOCK_SCOOTER')
+                return
+            }      
+
+            // find user balance
+            let balance = await Balance.findOne({
+                where: {
+                    userId: ride.user.id,
+                    currency: ride.user.currency
+                },
+                attributes: ['id','amount','currency'],
+                transaction: t
+            })
+
+            // find prices
+            let price = await Price.findOne({
+                where: {
+                    city: ride.city
+                },
+                attributes: ['id','minute'],
+                transaction: t
+            })
+            
+            let userBalance = BigNumber(balance.amount)
+            let priceMinute = BigNumber(price.minute)
+            
+            // minutes on ride
+            let time = BigNumber(moment().diff(ride.createdAt, 'minutes'))
+            // ride total so far
+            let total = time.multipliedBy(priceMinute)
+            
+            // check if user has enough balance to continue
+            // check if balance is <= than ride total
+            if(userBalance.isLessThanOrEqualTo(total)) {
+                 // send lock scooter command
+                res.status(200)
+                res.send('LOCK_SCOOTER')
+                return
+            }           
+        }
+        // scooter is not on_ride or it's on_ride and user has enough balance to continue
+        // send OK response
+        res.status(200)
+        res.send('OK')
+        return  
     })
         .catch((err) => {
             console.log(err)
