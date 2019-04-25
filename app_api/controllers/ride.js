@@ -458,11 +458,12 @@ module.exports.checkNewRide = function (req, res) {
                                 })
                                     .then((prices) => {
                                         // calculate if user has enough balance
+                                        let minRide = BigNumber(prices.minRide)
                                         let unlockPrice = BigNumber(prices.unlock)
                                         let minutePrice = BigNumber(prices.minute)
                                         let minTotal = unlockPrice.plus((minutePrice.times(prices.minRide)))
                                         let userBalance = BigNumber(balance.amount)
-
+                                        
                                         // if not enough balance to unlock scooter
                                         if (userBalance.isLessThan(minTotal)) {
                                             sendJSONresponse(res, 404, { message: 'Necesitas tener un balance mínimo de ' + printMoney(minTotal, prices.currency) + ' para poder iniciar el viaje' })

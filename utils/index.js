@@ -6,7 +6,7 @@ module.exports.sendJSONresponse = function(res,status,content) {
 }
 
 module.exports.printMoney = function(amount,currency) {
-    return '$' + ((amount / 100000000)).toFixed(2) + ' ' + currency
+    return '$' + amount.toFixed(2) + ' ' + currency
 }
 
 module.exports.validateEmail = function(email) {
