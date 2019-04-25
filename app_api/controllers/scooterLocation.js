@@ -55,10 +55,18 @@ module.exports.saveScooterLocation = function (req, res) {
     const lat = req.query.lat
     const lng = req.query.lng
 
+    // Check all the data was received
     if (!scooterCode || !lat || !lng) {
         sendJSONresponse(res, 422, { message: 'Missing arguments' })
         return
     }
+
+    // Do not accept 0,0 coordinates
+    if(parseFloat(lat) == 0 || parseFloat(lng) == 0) {
+        sendJSONresponse(res,404,{message: 'Invalid location coordinates'})
+        return
+    }
+
     sequelize.transaction(async (t) => {
         let scooter = await Scooter.findOne({
             where: {
@@ -66,6 +74,12 @@ module.exports.saveScooterLocation = function (req, res) {
             },
             transaction: t
         })
+
+        // Stop if scooter code was not found
+        if(!scooter) {
+            sendJSONresponse(res,404,{message: 'Scooter not found'})
+            return
+        }
             
         let location = {
             type: 'Point',
@@ -74,8 +88,10 @@ module.exports.saveScooterLocation = function (req, res) {
         scooter.lat = lat
         scooter.lng = lng
         
+        // Update scooter last location
         await scooter.save({ transaction: t })
-                    
+        
+        // Insert location into scooter location history
         let savedLocation = await ScooterLocation.create({
             scooterId: scooter.id,
             lat,
@@ -103,7 +119,7 @@ module.exports.saveScooterLocation = function (req, res) {
             // if the ride was not found but scooter in on_ride then lock scooter
             if(!ride) {
                 res.status(200)
-                res.send('LOCK_SCOOTER')
+                res.send('<LOCK_SCOOTER>')
                 return
             }      
 
@@ -137,16 +153,16 @@ module.exports.saveScooterLocation = function (req, res) {
             // check if user has enough balance to continue
             // check if balance is <= than ride total
             if(userBalance.isLessThanOrEqualTo(total)) {
-                 // send lock scooter command
+                // send lock scooter command                 
                 res.status(200)
-                res.send('LOCK_SCOOTER')
+                res.send('<LOCK_SCOOTER>')
                 return
             }           
         }
         // scooter is not on_ride or it's on_ride and user has enough balance to continue
         // send OK response
         res.status(200)
-        res.send('OK')
+        res.send('<OK>')
         return  
     })
         .catch((err) => {
