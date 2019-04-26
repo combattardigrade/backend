@@ -82,6 +82,66 @@ module.exports.getRideHistory = function(req,res) {
     })
 }
 
+module.exports.checkRideStatus = function(req, res) {
+    const userId = req.user.id
+
+    if(!userId) {
+        sendJSONresponse(res, 422, {message:'Missing required arguments'})
+        return
+    }
+
+    sequelize.transaction(async (t) => {
+        let user = await User.findOne({where: {id: userId}, transaction: t})
+
+        if(!user) {
+            sendJSONresponse(res,404,{message:'User does not exist'})
+            return
+        }
+
+        let ride = await Ride.findOne({where: {status: 'active'}, transaction: t})
+
+        if(!ride) {
+            sendJSONresponse(res,404,{message:'No active rides found'})
+            return
+        }
+
+        let balance = await Balance.findOne({
+            where: {userId, currency: user.currency},
+            attributes: ['id','amount','currency'], 
+            transaction: t })
+
+        let price = await Price.findOne({
+            where: {city: ride.city},
+            attributes: ['id','minute'],
+            transaction:  t
+        })
+        
+        // prepare data
+        let userBalance = BigNumber(balance.amount)
+        let priceMinute = BigNumber(price.minute)
+        // minutes on ride
+        let time = BigNumber(moment().diff(ride.createdAt, 'minutes'))
+        // ride total so far
+        let total = time.multipliedBy(priceMinute)
+        // check if user has enough balance to continue
+        // check if balance is <= than ride total
+        if(userBalance.isLessThanOrEqualTo(total)) { 
+            // send lock scooter command                 
+            sendJSONresponse(res, 200, {status: 'STOP_RIDE', message: 'El viaje se ha detenido ya que tu saldo se ha agotado. Recarga tu balance para continuar'})
+            return
+        }  
+
+        sendJSONresponse(res, 200, {status: 'OK', message: 'User can continue ride'})
+        return
+        
+    })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res,404,{message:'Error fetching ride status'})
+            return
+        })
+}
+
 module.exports.getRideData = function (req, res) {
     const userId = req.user.id
 
@@ -131,6 +191,10 @@ module.exports.getRideData = function (req, res) {
                             .then((scooterLocations) => {
                                 // calculate time
                                 // calcultate total distance
+                                if(!scooterLocations) {
+                                    sendJSONresponse(res,404,{message:'No locations found'})
+                                    return
+                                }
 
                                 let distances = scooterLocations.map(function (location, index) {
                                     if (index == 0) return 0
@@ -138,6 +202,7 @@ module.exports.getRideData = function (req, res) {
                                     let currentLocation = { lat: location.lat, lng: location.lng }
                                     return calculateDistance(prevLocation, currentLocation)
                                 })
+                                
 
                                 let time = moment().diff(ride.createdAt, 'minutes')
 
@@ -245,23 +310,22 @@ module.exports.endRide = function (req, res) {
                                                                 let total = time.multipliedBy(price)
                                                                 // discount ride cost amount from balance
                                                                 let userBalance = BigNumber(balance.amount)                                         
-                                                                balance.amount = userBalance - total
+                                                                balance.amount = (userBalance.minus(total)).toFixed(2)
                                                                 return balance.save({ transaction: t })
                                                                     .then(() => {
-
                                                                         // prepare data
-                                                                        var tax = total * prices.tax
-                                                                        var amount = total - tax
+                                                                        var tax = total.multipliedBy(prices.tax)
+                                                                        var amount = total.minus(tax)
 
                                                                         // create transaction
                                                                         return Transaction.create({
                                                                             userId,
                                                                             rideId: ride.id,
                                                                             operation: 'END_RIDE',
-                                                                            total: total,
+                                                                            total: total.toFixed(2),
                                                                             currency: prices.currency,
-                                                                            amount,
-                                                                            tax,
+                                                                            amount: amount.toFixed(2),
+                                                                            tax: tax.toFixed(2),
                                                                         }, { transaction: t })
                                                                             .then((tx) => {
 
@@ -355,7 +419,7 @@ module.exports.startRide = function (req, res) {
                                             return
                                         }
                                         // discount unlock amount                                        
-                                        balance.amount = userBalance.minus(unlockPrice)
+                                        balance.amount = (userBalance.minus(unlockPrice)).toFixed(2)
                                         return balance.save({ transaction: t })
                                             .then(() => {
                                                 // create ride
@@ -368,9 +432,9 @@ module.exports.startRide = function (req, res) {
                                                 }, { transaction: t })
                                                     .then((ride) => {
                                                         // prepare data
-                                                        let tax = unlockPrice.times(prices.tax)
-                                                        let amount = unlockPrice - tax
-
+                                                        let tax = (unlockPrice.times(prices.tax)).toFixed(2)
+                                                        let amount = (unlockPrice.minus(tax)).toFixed(2)
+                                                        
                                                         // create transaction
                                                         return Transaction.create({
                                                             userId,
@@ -457,8 +521,7 @@ module.exports.checkNewRide = function (req, res) {
                                     transaction: t
                                 })
                                     .then((prices) => {
-                                        // calculate if user has enough balance
-                                        let minRide = BigNumber(prices.minRide)
+                                        // calculate if user has enough balance                                        
                                         let unlockPrice = BigNumber(prices.unlock)
                                         let minutePrice = BigNumber(prices.minute)
                                         let minTotal = unlockPrice.plus((minutePrice.times(prices.minRide)))
