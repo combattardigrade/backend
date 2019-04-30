@@ -192,6 +192,7 @@ module.exports.createOrder = function (req, res) {
             // insert email into db
             user.email = email
             await user.save({ transaction: t })
+            // send verification email
         }
 
         // check if product exists

@@ -14,7 +14,7 @@ module.exports.uploadPhoto = function(req,res) {
     const lat = req.body.lat
     const lng = req.body.lng
     const photoData = req.body.photoData
-
+    
     if(!userId || !photoData || !lat || !lng) {
         sendJSONresponse(res,422,{message:'Missing required arguments'})
         return
@@ -57,10 +57,16 @@ module.exports.uploadPhoto = function(req,res) {
             lng,
         }, { transaction: t })
             
-        fs.writeFile(path, photoBuffer, function () {
-            sendJSONresponse(res,200,{photo})
-            return
-        })
+        try {
+            fs.writeFile(path, photoBuffer, function () {
+                sendJSONresponse(res,200,{photo})
+                return
+            })
+        }
+        catch(error) {
+            console.log('ERROR:', error)
+        }
+        
         
     })
         .catch((err) => {
