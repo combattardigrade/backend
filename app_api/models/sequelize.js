@@ -15,6 +15,7 @@ const ProductModel = require('./product')
 const PromoCodeModel = require('./promoCode')
 const PromoTransactionModel = require('./promoTransaction')
 const PlatformVersionModel = require('./platformVersion')
+const PhotoModel = require('./photo')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -47,6 +48,7 @@ const Product = ProductModel(sequelize,Sequelize)
 const PromoCode = PromoCodeModel(sequelize,Sequelize)
 const PromoTransaction = PromoTransactionModel(sequelize,Sequelize)
 const PlatformVersion = PlatformVersionModel(sequelize,Sequelize)
+const Photo = PhotoModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
@@ -70,7 +72,6 @@ Order.hasOne(Product)
 User.hasOne(PromoCode)
 PromoCode.belongsTo(User)
 
-
 sequelize.sync({force: false})
 .then(() => {
     console.log('Database & tables created')
@@ -93,5 +94,6 @@ module.exports = {
     PromoCode,
     PromoTransaction,
     PlatformVersion,
+    Photo,
     sequelize
 }

@@ -32,7 +32,7 @@ module.exports.getScootersNearLocation = function (req, res) {
     // https://stackoverflow.com/questions/25711895/the-result-by-haversine-formula-is-meter-o-kmeter
 
     Scooter.findAll({     
-        attributes: ['id','hash','battery','lat','lng','status','city',[sequelize.literal("6371 * acos(cos(radians(" + lat + ")) * cos(radians(lat)) * cos(radians(" + lng + ") - radians(lng)) + sin(radians(" + lat + ")) * sin(radians(lat)))"), 'distance']],  
+        attributes: ['id','code','hash','battery','lat','lng','status','city',[sequelize.literal("6371 * acos(cos(radians(" + lat + ")) * cos(radians(lat)) * cos(radians(" + lng + ") - radians(lng)) + sin(radians(" + lat + ")) * sin(radians(lat)))"), 'distance']],  
         where: {
             status: 'available',
         },

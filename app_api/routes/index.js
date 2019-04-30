@@ -19,6 +19,7 @@ const productController = require('../controllers/product')
 const promoCodeController = require('../controllers/promoCode')
 const userLocationController = require('../controllers/userLocation')
 const platformVersionController = require('../controllers/platformVersion')
+const photoController = require('../controllers/photo')
 
 const testController = require('../controllers/test')
 
@@ -63,6 +64,10 @@ router.post('/scooters/getActivationData', auth, scooterController.getActivation
 router.post('/locations/user/saveLocation', auth, userLocationController.saveLocation)
 router.get('/locations/scooter/saveLocation', scooterLocationController.saveScooterLocation)
 router.get('/locations/scooter/getScootersNearLocation', auth, scooterLocationController.getScootersNearLocation)
+
+// scooter => photos
+router.get('/scooter/photo', auth, photoController.getPhoto)
+router.post('/scooter/photo', auth, photoController.uploadPhoto)
 
 // price
 router.get('/prices/:city', auth, priceController.getPrices)
