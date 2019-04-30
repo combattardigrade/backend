@@ -2,6 +2,7 @@
 const User = require('../models/sequelize').User
 const Photo = require('../models/sequelize').Photo
 const Ride = require('../models/sequelize').Ride
+const Scooter = require('../models/sequelize').Scooter
 const sendJSONresponse = require('../../utils/index.js').sendJSONresponse
 const sequelize = require('../models/sequelize').sequelize
 const { Op } = require('sequelize')
@@ -69,24 +70,24 @@ module.exports.uploadPhoto = function(req,res) {
         })
 }
 
-module.exports.getPhoto = function(req,res) {
-    const userId = req.user.id
-    const scooterId = req.body.scooterId
+module.exports.getPhoto = function(req,res) {    
+    const scooterCode = req.params.scooterCode
 
-    if(!userId || !scooterId) {
+    if(!scooterCode) {
         sendJSONresponse(res,422,{message:'Missing required arguments'})
         return
     }
 
-    sequelize.transaction(async (t) => {
-        let user = await User.findOne({where: {id: userId}, transaction: t})
+    sequelize.transaction(async (t) => {        
 
-        if(!user) {
-            sendJSONresponse(res,404,{message:'User does not exist'})
+        let scooter = await Scooter.findOne({where: {code: scooterCode}, transaction: t})
+
+        if(!scooter) {
+            sendJSONresponse(res,404,{message:'Scooter not found'})
             return
         }
 
-        let ride = await Ride.findOne({where: {scooterId}, order: [['createdAt','DESC']], transaction: t})
+        let ride = await Ride.findOne({where: {scooterId: scooter.id}, order: [['createdAt','DESC']], transaction: t})
 
         if(!ride) {
             sendJSONresponse(res,404,{message:'Scooter does not have previous rides'})

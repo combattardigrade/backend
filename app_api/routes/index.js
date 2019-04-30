@@ -66,7 +66,7 @@ router.get('/locations/scooter/saveLocation', scooterLocationController.saveScoo
 router.get('/locations/scooter/getScootersNearLocation', auth, scooterLocationController.getScootersNearLocation)
 
 // scooter => photos
-router.get('/scooter/photo', auth, photoController.getPhoto)
+router.get('/scooter/lastPhoto/:scooterCode', photoController.getPhoto)
 router.post('/scooter/photo', auth, photoController.uploadPhoto)
 
 // price
