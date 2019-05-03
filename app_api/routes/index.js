@@ -68,6 +68,8 @@ router.get('/locations/scooter/getScootersNearLocation', auth, scooterLocationCo
 // scooter => photos
 router.get('/scooter/lastPhoto/:scooterCode', photoController.getPhoto)
 router.post('/scooter/photo', auth, photoController.uploadPhoto)
+// scooter => photos => votes
+router.post('/scooter/photo/vote', auth, photoController.createVote)
 
 // price
 router.get('/prices/:city', auth, priceController.getPrices)

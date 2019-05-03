@@ -16,6 +16,7 @@ const PromoCodeModel = require('./promoCode')
 const PromoTransactionModel = require('./promoTransaction')
 const PlatformVersionModel = require('./platformVersion')
 const PhotoModel = require('./photo')
+const PhotoVoteModel = require('./photoVote')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -49,6 +50,7 @@ const PromoCode = PromoCodeModel(sequelize,Sequelize)
 const PromoTransaction = PromoTransactionModel(sequelize,Sequelize)
 const PlatformVersion = PlatformVersionModel(sequelize,Sequelize)
 const Photo = PhotoModel(sequelize,Sequelize)
+const PhotoVote = PhotoVoteModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
@@ -71,6 +73,7 @@ Order.belongsTo(User)
 Order.hasOne(Product)
 User.hasOne(PromoCode)
 PromoCode.belongsTo(User)
+
 
 sequelize.sync({force: false})
 .then(() => {
@@ -95,5 +98,6 @@ module.exports = {
     PromoTransaction,
     PlatformVersion,
     Photo,
+    PhotoVote,
     sequelize
 }
