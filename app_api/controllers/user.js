@@ -29,7 +29,7 @@ module.exports.getData = function(req,res) {
             where: {
                 id: userId
             },
-            attributes: ['email', 'phone', 'countryCode', 'firstName', 'lastName', 'country', 'currency','createdAt'],
+            attributes: ['id','email', 'phone', 'countryCode', 'firstName', 'lastName', 'country', 'currency','gender','dateOfBirth','createdAt'],
             /*include: [
                 {
                     model: Balance,
@@ -249,12 +249,11 @@ module.exports.changeName = function (req, res) {
     const firstName = req.body.firstName
     const lastName = req.body.lastName
 
-    console.log(lastName)
     if (!userId || !firstName || !lastName) {
         sendJSONresponse(res, 422, { message: 'Missing required arguments' })
         return
     }
-    console.log('test')
+    
     sequelize.transaction((t) => {
         return User.findOne({
             where: {
@@ -367,3 +366,101 @@ module.exports.countAll = function (req, res) {
             return
         })
 } 
+
+module.exports.saveGeneralData = function(req, res) {
+    const userId = req.user.id
+    const gender = req.body.gender
+    const dateOfBirth = req.body.dateOfBirth
+    const terms = req.body.terms
+    const privacy = req.body.privacy
+
+    if(!userId || !gender || !dateOfBirth || !terms || !privacy) {
+        sendJSONresponse(res,404,{message: 'Ingresa todos los campos requeridos'})
+        return
+    }
+
+    // check gender
+    if(!(gender == 'M' || gender == 'F' || gender == 'X')) {
+        sendJSONresponse(res,404,{message: 'Ingresa un género válido'})
+        return
+    }
+
+    // calculate user's age
+    let age = moment().diff(moment(dateOfBirth, 'DD/MM/YYYY').format(), 'years')
+    
+    // check age
+    if(age < 18) {
+        sendJSONresponse(res,404,{message: 'Debes contar con 18 años para aperturar una cuenta'})
+        return
+    }
+
+    // check terms 
+    if(terms != 'accept' ) {
+        sendJSONresponse(res,404,{message: 'Debes aceptar los Términos y Condiciones para aperturar una cuenta'})
+        return
+    }
+
+    if(privacy != 'accept' ) {
+        sendJSONresponse(res,404,{message: 'Debes aceptar el Aviso de Privacidad para aperturar una cuenta'})
+        return
+    }
+
+    sequelize.transaction(async(t) => {
+        let user = await User.findOne({
+            where: {
+                id: userId
+            },
+            attributes: ['id', 'email','phone','countryCode','firstName','lastName','gender','dateOfBirth','createdAt'],
+            transaction: t
+        })
+
+        if(!user) {
+            sendJSONresponse(res,404,{message: 'El usuario no existe o es incorrecta'})
+            return
+        }
+
+        user.gender = gender
+        user.dateOfBirth = dateOfBirth
+        
+        await user.save({ transaction: t })
+        
+        sendJSONresponse(res, 200, user)
+        return
+    })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res,404,{message:'Ocurrió un error al intentar realizar la operación'})
+            return
+        })
+}
+
+module.exports.getGeneralData = function(req,res) {
+    const userId = req.user.id
+
+    if(!userId) {
+        sendJSONresponse(res,404,{message: 'El usuario no existe o es incorrecto'})
+        return
+    }
+
+    return User.findOne({
+        where: {
+            id: userId
+        },
+        attributes: ['id', 'email','phone','countryCode','firstName','lastName','gender','dateOfBirth','createdAt']
+    })
+        .then((user) => {
+            if(!user) {
+                sendJSONresponse(res,404,{message: 'El usuario no existe o es incorrecto'})
+                return
+            }
+
+            sendJSONresponse(res,200,user)
+            return
+
+        })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res,404,{message:'Ocurrió un error al intentar realizar la acción'})
+            return
+        })
+}

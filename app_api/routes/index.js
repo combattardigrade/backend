@@ -40,6 +40,8 @@ router.get('/user/data', auth, userController.getData)
 router.post('/user/changeName', auth, userController.changeName)
 router.post('/user/changeEmail', auth, userController.changeEmail)
 router.post('/user/changePhone', auth, userController.changePhone)
+router.post('/user/generalData', auth, userController.saveGeneralData)
+router.get('/user/generalData', auth, userController.getGeneralData)
 
 // payment methods
 router.post('/payment/saveCard', auth, paymentController.saveCard)
