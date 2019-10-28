@@ -54,6 +54,7 @@ module.exports.saveScooterLocation = function (req, res) {
     const scooterCode = req.query.scooterId
     const lat = req.query.lat
     const lng = req.query.lng
+    const battery = req.query.battery
 
     // Check all the data was received
     if (!scooterCode || !lat || !lng) {
@@ -87,6 +88,8 @@ module.exports.saveScooterLocation = function (req, res) {
         }
         scooter.lat = lat
         scooter.lng = lng
+        // save battery if it was sent
+        scooter.battery = battery
         
         // Update scooter last location
         await scooter.save({ transaction: t })
@@ -97,6 +100,7 @@ module.exports.saveScooterLocation = function (req, res) {
             lat,
             lng,
             location,
+            battery,
         }, { transaction: t })        
         
         // check if scooter is on_ride and should continue unlocked
@@ -116,7 +120,7 @@ module.exports.saveScooterLocation = function (req, res) {
                 transaction: t
             })
             
-            // if the ride was not found but scooter in on_ride then lock scooter
+            // if the ride was not found but scooter is on_ride then lock scooter
             if(!ride) {
                 res.status(200)
                 res.send('<LOCK_SCOOTER>')

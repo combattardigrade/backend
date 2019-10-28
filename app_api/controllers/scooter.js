@@ -20,7 +20,7 @@ module.exports.getActivationData = function(req,res) {
         where: {
             code,
         },
-        attributes: ['id','code','hash','bluetoothMAC','city','status']
+        attributes: ['id','code','hash','bluetoothMAC','city','battery','status']
     })
     .then((scooter) => {
         if(!scooter) {

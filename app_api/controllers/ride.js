@@ -2,6 +2,7 @@ const User = require('../models/sequelize').User
 const Balance = require('../models/sequelize').Balance
 const Scooter = require('../models/sequelize').Scooter
 const ScooterLocation = require('../models/sequelize').ScooterLocation
+const UserLocation = require('../models/sequelize').UserLocation
 const Price = require('../models/sequelize').Price
 const Ride = require('../models/sequelize').Ride
 const Transaction = require('../models/sequelize').Transaction
@@ -149,77 +150,93 @@ module.exports.getRideData = function (req, res) {
         sendJSONresponse(res, 422, { message: 'Missing required arguments' })
         return
     }
+    
+    sequelize.transaction(async (t) => {
 
-    // check if user exists
-    sequelize.transaction((t) => {
-        return User.findOne({
+        // check if user exists
+        let user = await User.findOne({
             where: {
                 id: userId
             },
             attributes: ['id', 'country', 'currency'],
             transaction: t
         })
-            .then((user) => {
-                if (!user) {
-                    sendJSONresponse(res, 404, { message: 'User does not exist' })
-                    return
+
+        if(!user) {
+            sendJSNOresponse(res, 404, { message: 'User does not exist' })
+            return
+        }
+
+        let ride = await Ride.findOne({
+            where: {
+                userId,
+                status: 'active'
+            },
+            transaction: t
+        })
+
+        if (!ride) {
+            sendJSONresponse(res, 404, { message: 'Ride not found' })
+            return
+        }
+
+        // get scooter locations of the current ride
+        let scooterLocations = await ScooterLocation.findAll({
+            where: {
+                scooterId: ride.scooterId,
+                createdAt: {
+                    [Op.between]: [ride.createdAt, moment().toDate()]
                 }
+            },
+            attributes: ['id', 'lat', 'lng', 'createdAt'],
+            transaction: t
+        })
 
-                return Ride.findOne({
-                    where: {
-                        userId: userId,
-                        status: 'active'
-                    },
-                    transaction: t
-                })
-                    .then((ride) => {
-                        if (!ride) {
-                            sendJSONresponse(res, 404, { message: 'Ride not found' })
-                            return
-                        }
+        // get user locations of the current ride
+        let userLocations = await UserLocation.findAll({
+            where: {
+                userId,
+                createdAt: {
+                    [Op.between]: [ride.createdAt, moment().toDate()]
+                }
+            },
+            attributes: ['id', 'lat', 'lng', 'createdAt'],
+            transaction: t
+        })
+                           
+        
+        if(scooterLocations.length <= 1 && userLocations <= 1) {
+            sendJSONresponse(res,404,{message:'No locations found'})
+            return
+        }
 
-                        return ScooterLocation.findAll({
-                            where: {
-                                scooterId: ride.scooterId,
-                                createdAt: {
-                                    [Op.gte]: ride.createdAt
-                                }
-                            },
-                            attributes: ['id', 'lat', 'lng', 'createdAt'],
-                            transaction: t
-                        })
-                            .then((scooterLocations) => {
-                                // calculate time
-                                // calcultate total distance
-                                if(!scooterLocations) {
-                                    sendJSONresponse(res,404,{message:'No locations found'})
-                                    return
-                                }
+        // concatenate arrays
+        let locations = scooterLocations.concat(userLocations)
 
-                                let distances = scooterLocations.map(function (location, index) {
-                                    if (index == 0) return 0
-                                    let prevLocation = { lat: scooterLocations[index - 1].lat, lng: scooterLocations[index - 1].lng }
-                                    let currentLocation = { lat: location.lat, lng: location.lng }
-                                    return calculateDistance(prevLocation, currentLocation)
-                                })
-                                
+        // sort by timestamp
+        locations.sort(function(a,b) {            
+            return a.createdAt - b.createdAt
+        })
+       
+        let totalDistance = 0
 
-                                let time = moment().diff(ride.createdAt, 'minutes')
+        locations.forEach(function (location, index) {
+            if (index == 0) return 0
+            let prevLocation = { lat: locations[index - 1].lat, lng: locations[index - 1].lng }
+            let currentLocation = { lat: location.lat, lng: location.lng }
+            totalDistance += calculateDistance(prevLocation, currentLocation)
+        })
+        
+        let time = moment().diff(ride.createdAt, 'minutes')
 
-                                Promise.all(distances).then(() => {
-                                    let distance = Math.round(distances.reduce((total, d) => total + d))
+        sendJSONresponse(res, 200, { distance: totalDistance, time })
+        return
+               
 
-                                    // calculate distance
-                                    sendJSONresponse(res, 200, { distance, time })
-                                    return
-                                })
-                            })
-                    })
-            })
     })
         .catch((err) => {
             console.log(err)
-            sendJSONresponse(res, 404, { message: 'Error starting ride' })
+            sendJSONresponse(res, 404, { message: 'Error fetching ride data' })
             return
         })
 }
