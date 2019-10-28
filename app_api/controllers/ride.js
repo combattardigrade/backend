@@ -180,6 +180,9 @@ module.exports.getRideData = function (req, res) {
             return
         }
 
+        // calculate time
+        let time = moment().diff(ride.createdAt, 'minutes')
+
         // get scooter locations of the current ride
         let scooterLocations = await ScooterLocation.findAll({
             where: {
@@ -206,7 +209,7 @@ module.exports.getRideData = function (req, res) {
                            
         
         if(scooterLocations.length <= 1 && userLocations <= 1) {
-            sendJSONresponse(res,404,{message:'No locations found'})
+            sendJSONresponse(res, 200, { distance: 0, time })
             return
         }
 
@@ -225,13 +228,10 @@ module.exports.getRideData = function (req, res) {
             let prevLocation = { lat: locations[index - 1].lat, lng: locations[index - 1].lng }
             let currentLocation = { lat: location.lat, lng: location.lng }
             totalDistance += calculateDistance(prevLocation, currentLocation)
-        })
-        
-        let time = moment().diff(ride.createdAt, 'minutes')
+        })               
 
         sendJSONresponse(res, 200, { distance: totalDistance, time })
-        return
-               
+        return               
 
     })
         .catch((err) => {
