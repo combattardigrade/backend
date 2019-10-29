@@ -172,6 +172,15 @@ module.exports.getRideData = function (req, res) {
                 userId,
                 status: 'active'
             },
+            include: [
+                {
+                    model: Scooter,
+                    
+                    attributes: [       
+                        'id', 'code','battery','city','status','lat','lng'
+                    ],                    
+                }
+            ],
             transaction: t
         })
 
@@ -230,7 +239,7 @@ module.exports.getRideData = function (req, res) {
             totalDistance += calculateDistance(prevLocation, currentLocation)
         })               
 
-        sendJSONresponse(res, 200, { distance: totalDistance, time })
+        sendJSONresponse(res, 200, { distance: totalDistance, time, scooter: ride.scooter })
         return               
 
     })
