@@ -20,6 +20,7 @@ const promoCodeController = require('../controllers/promoCode')
 const userLocationController = require('../controllers/userLocation')
 const platformVersionController = require('../controllers/platformVersion')
 const photoController = require('../controllers/photo')
+const vehicleReviewControler = require('../controllers/vehicleReview')
 
 const testController = require('../controllers/test')
 
@@ -72,6 +73,9 @@ router.get('/scooter/lastPhoto/:scooterCode', photoController.getPhoto)
 router.post('/scooter/photo', auth, photoController.uploadPhoto)
 // scooter => photos => votes
 router.post('/scooter/photo/vote', auth, photoController.createVote)
+// vehicle => review
+router.post('/vehicle/review', auth, vehicleReviewControler.createReview)
+
 
 // price
 router.get('/prices/:city', auth, priceController.getPrices)
@@ -86,6 +90,8 @@ router.post('/ride/checkNewRide', auth, rideController.checkNewRide)
 router.get('/ride/current', auth, rideController.getRideData)
 router.get('/ride/checkStatus', auth, rideController.checkRideStatus)
 router.get('/rides/history', auth, rideController.getRideHistory)
+
+
 
 
 // admin

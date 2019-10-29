@@ -16,14 +16,10 @@ module.exports = (sequelize,DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false           
         },
-        review: {
+        comment: {
             type: DataTypes.TEXT,
             allowNull: true
-        },
-        city: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },        
+        },             
         status: {
             type: DataTypes.STRING,
             allowNull: false,
