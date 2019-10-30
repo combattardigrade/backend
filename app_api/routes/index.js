@@ -21,6 +21,8 @@ const userLocationController = require('../controllers/userLocation')
 const platformVersionController = require('../controllers/platformVersion')
 const photoController = require('../controllers/photo')
 const vehicleReviewControler = require('../controllers/vehicleReview')
+const reportController = require('../controllers/report')
+const smsController = require('../controllers/sms')
 
 const testController = require('../controllers/test')
 
@@ -91,7 +93,11 @@ router.get('/ride/current', auth, rideController.getRideData)
 router.get('/ride/checkStatus', auth, rideController.checkRideStatus)
 router.get('/rides/history', auth, rideController.getRideHistory)
 
+// reports
+router.post('/report', auth, reportController.createReport)
 
+// sms
+router.get('/sms/receive', smsController.receiveSMS)
 
 
 // admin

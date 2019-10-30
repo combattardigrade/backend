@@ -34,6 +34,7 @@ module.exports.createReview = function(req,res) {
                 userId,
                 scooterId: vehicleId
             },
+            order: [['createdAt','DESC']],
             transaction: t
         })
 

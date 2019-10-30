@@ -18,6 +18,8 @@ const PlatformVersionModel = require('./platformVersion')
 const PhotoModel = require('./photo')
 const PhotoVoteModel = require('./photoVote')
 const VehicleReviewModel = require('./vehicleReview')
+const ReportModel = require('./report')
+const UnlockRequestModel = require('./unlockRequest')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -53,6 +55,8 @@ const PlatformVersion = PlatformVersionModel(sequelize,Sequelize)
 const Photo = PhotoModel(sequelize,Sequelize)
 const PhotoVote = PhotoVoteModel(sequelize,Sequelize)
 const VehicleReview = VehicleReviewModel(sequelize,Sequelize)
+const Report = ReportModel(sequelize,Sequelize)
+const UnlockRequest = UnlockRequestModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
@@ -104,5 +108,7 @@ module.exports = {
     Photo,
     PhotoVote,
     VehicleReview,
+    Report,
+    UnlockRequest,
     sequelize
 }

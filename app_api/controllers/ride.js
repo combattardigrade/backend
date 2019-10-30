@@ -181,7 +181,6 @@ module.exports.getRideData = function (req, res) {
                     ],                    
                 }
             ],
-            order: [['createdAt','DESC']],
             transaction: t
         })
 
