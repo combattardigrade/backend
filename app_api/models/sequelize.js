@@ -20,6 +20,7 @@ const PhotoVoteModel = require('./photoVote')
 const VehicleReviewModel = require('./vehicleReview')
 const ReportModel = require('./report')
 const UnlockRequestModel = require('./unlockRequest')
+const RegistrationKeyModel = require('./registrationKey')
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
@@ -57,6 +58,7 @@ const PhotoVote = PhotoVoteModel(sequelize,Sequelize)
 const VehicleReview = VehicleReviewModel(sequelize,Sequelize)
 const Report = ReportModel(sequelize,Sequelize)
 const UnlockRequest = UnlockRequestModel(sequelize,Sequelize)
+const RegistrationKey = RegistrationKeyModel(sequelize,Sequelize)
 
 User.hasMany(AuthRequest)
 AuthRequest.belongsTo(User)
@@ -82,6 +84,7 @@ User.hasOne(PromoCode)
 PromoCode.belongsTo(User)
 Scooter.hasMany(VehicleReview)
 VehicleReview.belongsTo(Scooter)
+User.hasOne(RegistrationKey)
 
 sequelize.sync({force: false})
 .then(() => {
@@ -110,5 +113,6 @@ module.exports = {
     VehicleReview,
     Report,
     UnlockRequest,
+    RegistrationKey,
     sequelize
 }

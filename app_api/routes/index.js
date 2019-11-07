@@ -23,6 +23,8 @@ const photoController = require('../controllers/photo')
 const vehicleReviewControler = require('../controllers/vehicleReview')
 const reportController = require('../controllers/report')
 const smsController = require('../controllers/sms')
+const registrationKeyController = require('../controllers/registrationKey')
+const pushNotificationController = require('../controllers/pushNotification')
 
 const testController = require('../controllers/test')
 
@@ -99,6 +101,11 @@ router.post('/report', auth, reportController.createReport)
 // sms
 router.get('/sms/receive', smsController.receiveSMS)
 
+// registrationKey
+router.post('/registrationKey', auth, registrationKeyController.saveRegistrationId)
+
+// push notification
+router.post('/pushNotification/test', pushNotificationController.testNotification)
 
 // admin
 router.post('/admin/givePrivileges',auth,adminController.givePrivileges)
@@ -120,6 +127,7 @@ router.get('/admin/version/:platform', platformVersionController.getVersion)
 router.put('/admin/version', auth, platformVersionController.updateVersion)
 router.delete('/admin/version/:platform', auth, platformVersionController.deleteVersion)
 router.get('/admin/appstore', platformVersionController.checkiOSReview)
+
 
 router.get('/test/sms', testController.sendSms)
 router.get('/test', testController.test)
