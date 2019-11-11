@@ -369,12 +369,14 @@ module.exports.countAll = function (req, res) {
 
 module.exports.saveGeneralData = function(req, res) {
     const userId = req.user.id
+    const firstName = req.body.firstName
+    const lastName = req.body.lastName
     const gender = req.body.gender
     const dateOfBirth = req.body.dateOfBirth
     const terms = req.body.terms
     const privacy = req.body.privacy
 
-    if(!userId || !gender || !dateOfBirth || !terms || !privacy) {
+    if(!userId || !firstName || !lastName || !gender || !dateOfBirth || !terms || !privacy) {
         sendJSONresponse(res,404,{message: 'Ingresa todos los campos requeridos'})
         return
     }
@@ -418,7 +420,9 @@ module.exports.saveGeneralData = function(req, res) {
             sendJSONresponse(res,404,{message: 'El usuario no existe o es incorrecta'})
             return
         }
-
+        
+        user.firstName = firstName
+        user.lastName = lastName
         user.gender = gender
         user.dateOfBirth = dateOfBirth
         

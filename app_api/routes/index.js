@@ -25,6 +25,7 @@ const reportController = require('../controllers/report')
 const smsController = require('../controllers/sms')
 const registrationKeyController = require('../controllers/registrationKey')
 const pushNotificationController = require('../controllers/pushNotification')
+const profileController = require('../controllers/profile')
 
 const testController = require('../controllers/test')
 
@@ -106,6 +107,16 @@ router.post('/registrationKey', auth, registrationKeyController.saveRegistration
 
 // push notification
 router.post('/pushNotification/test', pushNotificationController.testNotification)
+
+// profiles / chargers
+router.get('/profile/chargersFirstStep', auth, profileController.getChargersFirstStep)
+router.post('/profile/chargersFirstStep', auth, profileController.saveChargersFirstStep)
+router.get('/profile/chargersSecondStep', auth, profileController.getChargersSecondStep)
+router.post('/profile/chargersSecondStep', auth, profileController.saveChargersSecondStep)
+router.get('/profile/checkChargersThirdStep', auth, profileController.checkChargersThirdStep)
+router.get('/profile/checkChargersFourthStep', auth, profileController.checkChargersFourthStep)
+router.post('/profile/uploadDocument', auth, profileController.uploadDocument)
+router.get('/profile/checkChargerDocument/:documentType', auth, profileController.checkChargerDocument)
 
 // admin
 router.post('/admin/givePrivileges',auth,adminController.givePrivileges)
