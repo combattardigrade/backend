@@ -36,7 +36,7 @@ module.exports.activateEmail = (req, res) => {
         })
             .then((authRequest) => {
                 if (!authRequest) {
-                    sendJSONresponse(res, 200, { message: 'El link de activación ya fue usado' })
+                    sendJSONresponse(res, 200, { status: 'OK', message: 'El link de activación ya fue usado' })
                     return
                 }
                 // mark authRequest as used
@@ -45,11 +45,11 @@ module.exports.activateEmail = (req, res) => {
                     .then(() => {
                         // set emailk
                         // emailVerified =1
-                        authRequest.user.email = authRequest.data
+                        const token = authRequest.user.generateJwt()                        
                         authRequest.user.emailVerified = 1
                         return authRequest.user.save({ transaction: t })
                             .then(() => {
-                                sendJSONresponse(res, 200, { message: 'Email verificado correctamente' })
+                                sendJSONresponse(res, 200, { status: 'OK', message: 'Email verificado correctamente', token: token })
                                 return
                             })
                     })
@@ -67,12 +67,12 @@ module.exports.emailSignup = (req, res) => {
     const password = req.body.password
 
     if (!email || !password) {
-        sendJSONresponse(res, 422, { message: 'Missing required parameter' })
+        sendJSONresponse(res, 422, { status: 'ERROR', message: 'Ingresa todos los campos requeridos' })
         return
     } 
 
     if (!validator.validate(email)) {
-        sendJSONresponse(res, 404, { message: 'Ingresa un email válido' })
+        sendJSONresponse(res, 422, { status: 'ERROR', message: 'Ingresa un email válido' })
         return
     }
 
@@ -85,12 +85,12 @@ module.exports.emailSignup = (req, res) => {
         })
             .spread(function (user, created) {
                 if (!created) {
-                    sendJSONresponse(res, 404, { message: 'El email ya se encuentra registrado' })
+                    sendJSONresponse(res, 422, { status: 'ERROR', message: 'El email ingresado ya se encuentra registrado' })
                     return
                 }
 
                 user.setPassword(password)
-                const token = user.generateJwt()
+                // const token = user.generateJwt()
 
                 return user.save({ transaction: t })
                     .then(function () {
@@ -103,11 +103,11 @@ module.exports.emailSignup = (req, res) => {
                         }, { transaction: t })
                             .then(function (request) {
                                 if (!request) {
-                                    sendJSONresponse(res, 404, { message: 'Error creating account' })
+                                    sendJSONresponse(res, 422, { status: 'ERROR', message: 'Error al intentar crear la cuenta. Por favor, inténtalo nuevamente' })
                                     return
                                 }
-                                sendJSONresponse(res, 200, { token: token })
-                                let url = 'http://localhost:3000/api/emailVerification/' + request.code
+                                sendJSONresponse(res, 200, { status: 'OK', message: '¡Éxito! Revisa tu email para activar tu cuenta' })
+                                let url = 'https://blits.net/api//auth/email/activate/' + request.code
                                 /*emailController.sendActivationEmail({ email: email, url: url }, function () {
                                     return
                                 })*/
@@ -138,7 +138,7 @@ module.exports.emailLogin = (req, res) => {
             return
         }
         if (token) {
-            sendJSONresponse(res, 200, { token: token })
+            sendJSONresponse(res, 200, { status: 'OK', token: token })
             return
         } else {
             sendJSONresponse(res, 401, info)

@@ -51,7 +51,7 @@ module.exports.givePrivileges = function(req,res) {
                         return
                     }
 
-                    sendJSONresponse(res,200,{adminCreated})
+                    sendJSONresponse(res,200,{status: 'OK', admin: adminCreated})
                     return
                 })
                 .catch((err) => {

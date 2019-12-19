@@ -1,3 +1,4 @@
+const User = require('../models/sequelize').User
 const Scooter = require('../models/sequelize').Scooter
 const Admin = require('../models/sequelize').Admin
 const Location = require('../models/sequelize').Location
@@ -214,3 +215,53 @@ module.exports.countByStatus = function (req, res) {
             return
         })
 } 
+
+module.exports.getVehicle = (req, res) => {
+    const userId = parseInt(req.user.id)
+    const vehicleCode = String(req.params.vehicleCode)
+
+    if(!userId || isNaN(userId)) {
+        sendJSONresponse(res,422,{status: 'ERROR', message: 'Missing authentication token'})
+        return
+    }
+
+    if(!vehicleCode) {
+        sendJSONresponse(res,22,{status: 'ERROR', message: 'Missing vehicle code'})
+        return
+    }
+
+    sequelize.transaction(async (t) => {
+        const user = await User.find({
+            where: {
+                id: userId
+            },
+            transaction: t
+        })
+
+        if(!user) {
+            sendJSONresponse(res,404,{status: 'ERROR', message: 'User does not exist'})
+            return
+        }
+
+        const vehicle = await Scooter.findOne({
+            where: {
+                code: vehicleCode,
+            },
+            transaction: t
+        })
+
+        if(!vehicle) {
+            sendJSONresponse(res,404,{status: 'ERROR',message: 'Vehicle does not exist'})
+            return
+        }
+
+        sendJSONresponse(res, 200, { status: 'OK', vehicle})
+        return
+
+    })
+        .catch((err) => {
+            console.log(err)
+            sendJSONresponse(res,422,{status: 'ERROR', message: err})
+            return
+        })    
+}

@@ -80,7 +80,7 @@ router.post('/scooter/photo', auth, photoController.uploadPhoto)
 router.post('/scooter/photo/vote', auth, photoController.createVote)
 // vehicle => review
 router.post('/vehicle/review', auth, vehicleReviewControler.createReview)
-
+router.get('/vehicle/:vehicleCode', auth, scooterController.getVehicle)
 
 // price
 router.get('/prices/:city', auth, priceController.getPrices)
